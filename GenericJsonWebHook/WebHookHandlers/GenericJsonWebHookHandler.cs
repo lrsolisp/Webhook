@@ -24,7 +24,10 @@ namespace GenericJsonWebHook.WebHookHandlers
         {
             JObject data = context.GetDataOrDefault<JObject>();
 
-            log.Debug("Webhook ejecutando...");
+            string action = context.Actions.First();
+
+            log.Debug(action);
+            System.IO.File.WriteAllText(@"C:\WebhookLog.txt", action);
 
             return Task.FromResult(true);
         }

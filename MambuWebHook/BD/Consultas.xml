@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="DEVENGADOS" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+
+
+  <statements>
+
+    <select id="ObtenerCreditos" parameterClass ="System.Collections.IDictionary" resultClass="System.String" >
+      SELECT
+      credito
+      FROM creditosDatos
+    </select>
+
+
+    <select id="ExisteCredito" parameterClass="System.Collections.IDictionary" resultClass="System.String">
+      IF EXISTS
+      (
+      SELECT 1
+      FROM creditos
+      WHERE  idCredito = #idCredito#
+      )
+      SELECT '1'
+      ELSE
+      SELECT '0'
+    </select>
+
+
+    <select id="ExisteContrato" parameterClass="System.String" resultClass="System.String">
+      IF EXISTS
+      (
+      SELECT 1
+      FROM contratos
+      WHERE  idContrato = #value#
+      )
+      SELECT '1'
+      ELSE
+      SELECT '0'
+    </select>
+
+
+    <select id="ExisteTransaccion" parameterClass="long" resultClass="System.String">
+      IF EXISTS
+      (
+      SELECT 1
+      FROM movimientos
+      WHERE  idTransaccion = #value#
+      )
+      SELECT '1'
+      ELSE
+      SELECT '0'
+    </select>
+
+
+  </statements>
+
+
+
+
+</sqlMap>
