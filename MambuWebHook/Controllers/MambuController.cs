@@ -37,7 +37,7 @@ namespace MambuWebHook.Controllers
                 if(existe.Equals("0"))
                 {
                     //Obtenemos las transacciones del contrato
-                    List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(ConstantesMambu.ESTATUS_ACTIVO, null, null, null, DateTime.Now.ToString("yyyy-MM-dd"), ConstantesMambu.OPERADOR_ON);
+                    List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contrato.idContrato);
 
                     long contador = 0;
 
@@ -57,7 +57,7 @@ namespace MambuWebHook.Controllers
 
                             // se valida que ya exista el crédito 
                             existe = string.Empty;
-                            existe = Negocio.OperacionesBD.ExisteCredito(parametrosExisteCredito);
+                            existe = OperacionesBD.ExisteCredito(parametrosExisteCredito);
 
                             //Creamos instancias de los objetos que se obtendra información
                             Credito credito = new Credito();

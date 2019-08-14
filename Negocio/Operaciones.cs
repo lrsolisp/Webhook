@@ -18,14 +18,86 @@ namespace Negocio
         /// <summary>
         /// Método para obtener las cuentas de prestamo (Contratos) con base al estatus
         /// </summary>
-        /// <param name="estatus"></param>
-        /// <param name="fechaDesembolso"></param>
-        /// <param name="fechaLiquidacion"></param>
-        /// <param name="fechaCancelacion"></param>
-        /// <param name="fechaContrato"></param>
-        /// <param name="operador"></param>
+        /// <param name="idContrato"></param>
         /// <returns></returns>
-        public static List<Loan> ObtenerCuentasPrestamo(string estatus, string fechaDesembolso, string fechaLiquidacion, string fechaCancelacion, string fechaContrato, string operador)
+        public static List<Loan> ObtenerCuentasPrestamo(string idContrato)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            int offset = 0;
+            bool acaba = false;
+
+            List<FilterConstraints> filterConstraints = new List<FilterConstraints>();
+
+            FilterConstraints filterConstraint = new FilterConstraints();
+
+            #region Filtros
+           
+            filterConstraint = null;
+            filterConstraint = new Entidades.FilterConstraints();
+            filterConstraint.filterSelection = Negocio.Globales.Constantes.FILTRO_CAMPO_ACCOUNT_ID;
+            filterConstraint.filterElement = Negocio.Globales.Constantes.OPERADOR_EQUALS;
+            filterConstraint.value = idContrato;
+            filterConstraint.dataItemType = Negocio.Globales.Constantes.DATA_ITEM_TYPE_LOANS;
+            filterConstraints.Add(filterConstraint);
+
+            #endregion
+
+            Filtros filtros = new Filtros();
+            filtros.filterConstraints = filterConstraints;
+
+            string json = JsonConvert.SerializeObject(filtros);
+
+            List<Loan> contratos = null;
+            List<Loan> acumuladoContratos = new List<Loan>();
+
+            while (!acaba)
+            {
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/loans/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
+
+                req.Method = Constantes.METODO_POST;
+                req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+                req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
+                req.ContentType = "application/json";
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+
+                using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                {
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    contratos = js.Deserialize<List<Loan>>(objText);
+
+                    if (contratos.Count <= 0)
+                    {
+                        acaba = true;
+                    }
+                    else
+                    {
+                        offset += 1000;
+                        acumuladoContratos.AddRange(contratos);
+                    }
+                    contratos = null;
+                }
+            }
+            return acumuladoContratos;
+        }
+
+        /// <summary>
+        /// Método para obtener las cuentas de prestamo (Contratos) con base al estatus
+        /// </summary>
+        /// <param name="idContrato"></param>
+        /// <param name="estatus"></param>
+        /// <returns></returns>
+        public static List<Loan> ObtenerCuentasPrestamo(string idContrato, string estatus)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
@@ -49,52 +121,13 @@ namespace Negocio
                 filterConstraints.Add(filterConstraint);
             }
 
-            if (fechaDesembolso != null)
-            {
-                filterConstraint = null;
-                filterConstraint = new Entidades.FilterConstraints();
-                filterConstraint.filterSelection = Negocio.Globales.Constantes.KEY_CAMPO_ID_CREDITO;
-                filterConstraint.filterElement = Negocio.Globales.Constantes.OPERADOR_EQUALS;
-                filterConstraint.value = fechaDesembolso;
-                filterConstraint.dataFieldType = Negocio.Globales.Constantes.DATA_FIELD_TYPE_CUSTOM;
-                filterConstraints.Add(filterConstraint);
-            }
-
-
-            if (fechaLiquidacion != null)
-            {
-                filterConstraint = null;
-                filterConstraint = new Entidades.FilterConstraints();
-                filterConstraint.filterSelection = Negocio.Globales.Constantes.KEY_CAMPO_ID_CREDITO;
-                filterConstraint.filterElement = Negocio.Globales.Constantes.OPERADOR_EQUALS;
-                filterConstraint.value = fechaLiquidacion;
-                filterConstraint.dataFieldType = Negocio.Globales.Constantes.DATA_FIELD_TYPE_CUSTOM;
-                filterConstraints.Add(filterConstraint);
-            }
-
-
-            if (fechaCancelacion != null)
-            {
-                filterConstraint = null;
-                filterConstraint = new Entidades.FilterConstraints();
-                filterConstraint.filterSelection = Negocio.Globales.Constantes.KEY_CAMPO_ID_CREDITO;
-                filterConstraint.filterElement = Negocio.Globales.Constantes.OPERADOR_EQUALS;
-                filterConstraint.value = fechaCancelacion;
-                filterConstraint.dataFieldType = Negocio.Globales.Constantes.DATA_FIELD_TYPE_CUSTOM;
-                filterConstraints.Add(filterConstraint);
-            }
-
-
-            if (fechaContrato != null)
-            {
-                filterConstraint = null;
-                filterConstraint = new Entidades.FilterConstraints();
-                filterConstraint.filterSelection = Negocio.Globales.ConstantesMambu.FILTRO_CAMPO_FECHA_DESEMBOLSO;
-                filterConstraint.filterElement = operador;
-                filterConstraint.dataItemType = Negocio.Globales.ConstantesMambu.DATA_ITEM_TYPE_DISBURSEMENT_DETAILS;
-                filterConstraint.value = fechaContrato;
-                filterConstraints.Add(filterConstraint);
-            }
+            filterConstraint = null;
+            filterConstraint = new Entidades.FilterConstraints();
+            filterConstraint.filterSelection = Negocio.Globales.Constantes.FILTRO_CAMPO_ACCOUNT_ID;
+            filterConstraint.filterElement = Negocio.Globales.Constantes.OPERADOR_EQUALS;
+            filterConstraint.value = idContrato;
+            filterConstraint.dataItemType = Negocio.Globales.Constantes.DATA_ITEM_TYPE_LOANS;
+            filterConstraints.Add(filterConstraint);
 
             #endregion
 
@@ -146,6 +179,11 @@ namespace Negocio
             return acumuladoContratos;
         }
 
+        /// <summary>
+        /// Método para obtener las amortizaciones por contrato
+        /// </summary>
+        /// <param name="idContrato"></param>
+        /// <returns></returns>
         public static List<Repayment> ObtenerAmortizaciones(string idContrato)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
