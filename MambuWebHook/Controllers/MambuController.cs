@@ -58,6 +58,19 @@ namespace MambuWebHook.Controllers
                             // se valida que ya exista el crédito 
                             existe = string.Empty;
                             existe = Negocio.OperacionesBD.ExisteCredito(parametrosExisteCredito);
+
+                            //Creamos instancias de los objetos que se obtendra información
+                            Credito credito = new Credito();
+                            Cliente cliente = new Cliente();
+                            Contrato contratoInsertar = new Contrato();
+
+                            string keyGrupo = string.Empty;
+
+                            credito.diasVencidos = 0;
+                            credito.idCredito = idCredito;
+
+                            //Obtenemos las amortizaciones de contrato
+                            List<Repayment> amortizaciones = Operaciones.ObtenerAmortizaciones(loan.id);
                         }
                     }
                     //List<Transaccion> transacciones =  Operaciones.ObtenerTransacciones(contrato.idContrato);

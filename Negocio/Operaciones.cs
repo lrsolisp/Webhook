@@ -146,6 +146,39 @@ namespace Negocio
             return acumuladoContratos;
         }
 
+        public static List<Repayment> ObtenerAmortizaciones(string idContrato)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/loans/" + idContrato + "/repayments?" + Constantes.LIMITE_CONSULTA);
+
+            req.Method = Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+
+            List<Repayment> amortizaciones = new List<Repayment>();
+
+            try
+            {
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    amortizaciones = JsonConvert.DeserializeObject<List<Entidades.Repayment>>(objText);
+                }
+            }
+            catch (Exception exception)
+            {
+
+            }
+
+            return amortizaciones;
+        }
+
 
         /// <summary>
         /// Método para obtener un campo personalizado de un contrato
@@ -170,7 +203,7 @@ namespace Negocio
 
             var httpResponse = (HttpWebResponse)req.GetResponse();
 
-            List<Entidades.CustomFieldValue> campoPersonalizado = new List<Entidades.CustomFieldValue>();
+            List<CustomFieldValue> campoPersonalizado = new List<CustomFieldValue>();
 
             try
             {
