@@ -56,21 +56,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Address.cs" />
     <Compile Include="AnidaFee.cs" />
     <Compile Include="Cliente.cs" />
+    <Compile Include="ClienteMambu.cs" />
     <Compile Include="Contrato.cs" />
     <Compile Include="ContratoMambu.cs" />
     <Compile Include="Credito.cs" />
     <Compile Include="CustomField.cs" />
     <Compile Include="CustomFieldSet.cs" />
     <Compile Include="CustomFieldValue.cs" />
+    <Compile Include="CustomInformation.cs" />
     <Compile Include="DisbursementDetails.cs" />
     <Compile Include="Fee.cs" />
     <Compile Include="FilterConstraints.cs" />
     <Compile Include="Filtros.cs" />
     <Compile Include="Loan.cs" />
+    <Compile Include="Movimiento.cs" />
+    <Compile Include="Pago.cs" />
+    <Compile Include="Producto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repayment.cs" />
+    <Compile Include="Sucursal.cs" />
     <Compile Include="Transaccion.cs" />
   </ItemGroup>
   <ItemGroup>

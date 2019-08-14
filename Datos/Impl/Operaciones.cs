@@ -30,6 +30,81 @@ namespace Datos.Impl
             return mapper.QueryForObject<string>("ExisteCredito", parametros);
         }
 
+        public long InsertarCredito(Credito credito)
+        {
+            long insertado = -1;
+
+            Object objeto = mapper.Insert("InsertarCredito", credito);
+
+            if(objeto != null)
+            {
+                insertado = (long)objeto;
+                objeto = null;
+            }
+
+            return insertado;
+        }
+
+        public long InsertarCliente(Cliente cliente)
+        {
+            long insertado = -1;
+
+            Object objeto = mapper.Insert("InsertarCliente", cliente);
+
+            if (objeto != null)
+            {
+                insertado = (long)objeto;
+                objeto = null;
+            }
+
+            return insertado;
+        }
+
+        public long InsertarContrato(Contrato contratoInsertar)
+        {
+            long insertado = -1;
+
+            Object objeto = mapper.Insert("InsertarContrato", contratoInsertar);
+
+            if (objeto != null)
+            {
+                insertado = (long)objeto;
+                objeto = null;
+            }
+
+            return insertado;
+        }
+
+        public long InsertarMovimiento(Movimiento movimiento)
+        {
+            long insertado = -1;
+
+            Object objeto = mapper.Insert("InsertarMovimiento", movimiento);
+
+            if (objeto != null)
+            {
+                insertado = (long)objeto;
+                objeto = null;
+            }
+
+            return insertado;
+        }
+
+        public long InsertarAmortizacion(Pago pago)
+        {
+            long insertado = -1;
+
+            Object objeto = mapper.Insert("InsertarAmortizacion", pago);
+
+            if (objeto != null)
+            {
+                insertado = (long)objeto;
+                objeto = null;
+            }
+
+            return insertado;
+        }
+
         public void Commit()
         {
             if (mapper != null)

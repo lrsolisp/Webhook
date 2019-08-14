@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entidades\Grupo.cs" />
     <Compile Include="Globales\Constantes.cs" />
     <Compile Include="Globales\ConstantesMambu.cs" />
     <Compile Include="Operaciones.cs" />

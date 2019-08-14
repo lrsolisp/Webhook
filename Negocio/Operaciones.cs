@@ -91,6 +91,158 @@ namespace Negocio
             return acumuladoContratos;
         }
 
+        public static Dictionary<string, string> ObtenerDatosSucursal(string id)
+        {
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
+
+            Dictionary<string, string> objeto = new Dictionary<string, string>();
+
+            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + Negocio.Globales.Constantes.API_MAMBU_BRANCH + "/" + id + "?fulldetails=true");
+
+            req.ContentType = "application/json; charset=utf-8";
+            req.Method = Negocio.Globales.Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+            Entidades.Sucursal sucursal = new Entidades.Sucursal();
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var objText = streamReader.ReadToEnd();
+                sucursal = js.Deserialize<Entidades.Sucursal>(objText);
+            }
+
+            if (sucursal != null)
+            {
+                objeto.Add("idSucursal", sucursal.id);
+                objeto.Add("nombreSucursal", sucursal.name);
+
+                sucursal = null;
+            }
+
+            return objeto;
+        }
+
+        public static Dictionary<string, string> ObtenerDatosCliente(string id)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            ClienteMambu objeto = new ClienteMambu();
+            Dictionary<string, string> datos = new Dictionary<string, string>();
+
+
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_CLIENT + "/" + id + "?fulldetails=true");
+
+            req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
+            req.Method = Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var objText = streamReader.ReadToEnd();
+                objeto = js.Deserialize<ClienteMambu>(objText);
+            }
+
+            if (objeto != null)
+            {
+                datos.Add("idCliente", objeto.client.id);
+                datos.Add("nombreCliente", objeto.client.firstName);
+                datos.Add("paternoCliente", objeto.client.middleName);
+                datos.Add("maternoCliente", objeto.client.lastName);
+
+                if (objeto.groupKeys.Count > 0)
+                {
+                    datos.Add("keyGrupo", objeto.groupKeys.FirstOrDefault().ToString());
+                }
+                else
+                {
+                    datos.Add("keyGrupo", objeto.id);
+                }
+
+                objeto = null;
+            }
+
+            return datos;
+
+        }
+
+        public static Dictionary<string, string> ObtenerDatosGrupo(string id)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+
+            Grupo objeto = new Grupo();
+            Dictionary<string, string> datos = new Dictionary<string, string>();
+
+
+            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] +"/"+ Negocio.Globales.Constantes.API_MAMBU_GROUP + "/" + id);
+
+            req.ContentType = "application/json; charset=utf-8";
+            req.Method = Negocio.Globales.Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var objText = streamReader.ReadToEnd();
+                objeto = js.Deserialize<Grupo>(objText);
+            }
+
+            if (objeto != null)
+            {
+                datos.Add("idGrupo", objeto.id);
+                datos.Add("nombreGrupo", objeto.groupName);
+                objeto = null;
+            }
+
+            return datos;
+        }
+
+        public static Dictionary<string, string> ObtenerDatosProducto(string id)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            Producto objeto = new Producto();
+            Dictionary<string, string> datos = new Dictionary<string, string>();
+
+
+            WebRequest req = WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_PRODUCT + "/" + id + "?fulldetails=true");
+            req.ContentType = "application/json; charset=utf-8";
+            req.Method = Negocio.Globales.Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var objText = streamReader.ReadToEnd();
+                objeto = js.Deserialize<Producto>(objText);
+            }
+
+            if (objeto != null)
+            {
+                datos.Add("nombreProducto", objeto.productName);
+                objeto = null;
+            }
+
+            return datos;
+        }
+
         /// <summary>
         /// Método para obtener las cuentas de prestamo (Contratos) con base al estatus
         /// </summary>
@@ -303,6 +455,189 @@ namespace Negocio
             }
 
             return transacciones;
+        }
+
+        public static List<Transaccion> ObtenerTransacciones(string tipo, string keyContrato)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            int offset = 0;
+            bool acaba = false;
+
+            Filtros filtros = new Filtros();
+            FilterConstraints filterConstraint = new FilterConstraints();
+
+            if (tipo != null)
+            {
+                // Tipo de Transacción
+                filterConstraint = new FilterConstraints();
+                filterConstraint.filterSelection = ConstantesMambu.FILTRO_SELECCION_EVENT;
+                filterConstraint.filterElement = ConstantesMambu.OPERADOR_EQUALS;
+                filterConstraint.value = tipo;
+                filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
+                filtros.filterConstraints.Add(filterConstraint);
+            }
+
+
+
+            //  Key Contrato
+            filterConstraint = null;
+            filterConstraint = new FilterConstraints();
+            filterConstraint.filterSelection = ConstantesMambu.FILTRO_CAMPO_PARENT_ACCOUNT_KEY;
+            filterConstraint.filterElement = ConstantesMambu.OPERADOR_EQUALS;
+            filterConstraint.value = keyContrato;
+            filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
+            filtros.filterConstraints.Add(filterConstraint);
+
+
+            //  Fue Reversado?
+            filterConstraint = null;
+            filterConstraint = new FilterConstraints();
+            filterConstraint.filterSelection = ConstantesMambu.FILTRO_CAMPO_WAS_REVERSED;
+            filterConstraint.filterElement = ConstantesMambu.OPERADOR_EQUALS;
+            filterConstraint.value = ConstantesMambu.VALOR_CAMPO_FALSO;
+            filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
+            filtros.filterConstraints.Add(filterConstraint);
+
+
+            string json = JsonConvert.SerializeObject(filtros);
+
+            List<Transaccion> transacciones = null;
+            List<Transaccion> acumuladoTransacciones = new List<Transaccion>();
+
+
+            while (!acaba)
+            {
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
+
+                req.Method = Constantes.METODO_POST;
+                req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+                req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
+                req.ContentType = "application/json";
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+
+                using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                {
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+
+
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    transacciones = js.Deserialize<List<Transaccion>>(objText);
+
+                    if (transacciones.Count <= 0)
+                    {
+                        acaba = true;
+                    }
+                    else
+                    {
+                        offset += 1000;
+                        acumuladoTransacciones.AddRange(transacciones);
+                    }
+
+                    transacciones = null;
+                }
+
+            }
+
+            return acumuladoTransacciones;
+        }
+
+        public static List<Transaccion> ObtenerTransacciones(string tipo, string fechaInicio, string fechaFin, bool reversado)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            int offset = 0;
+            bool acaba = false;
+
+            Filtros filtros = new Filtros();
+            FilterConstraints filterConstraint = new FilterConstraints();
+
+            // Tipo de Transacción
+            filterConstraint = new FilterConstraints();
+            filterConstraint.filterSelection = ConstantesMambu.FILTRO_SELECCION_EVENT;
+            filterConstraint.filterElement = ConstantesMambu.OPERADOR_EQUALS;
+            filterConstraint.value = tipo;
+            filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
+            filtros.filterConstraints.Add(filterConstraint);
+
+
+            //  Rango de Fechas
+            filterConstraint = null;
+            filterConstraint = new FilterConstraints();
+            filterConstraint.filterSelection = ConstantesMambu.FILTRO_CAMPO_TRANSACTION_DATE;
+            filterConstraint.filterElement = ConstantesMambu.OPERADOR_BETWEEN;
+            filterConstraint.value = fechaInicio;
+            filterConstraint.secondValue = fechaFin;
+            filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
+            filtros.filterConstraints.Add(filterConstraint);
+
+
+            //  Fue Reversado?
+            filterConstraint = null;
+            filterConstraint = new FilterConstraints();
+            filterConstraint.filterSelection = ConstantesMambu.FILTRO_CAMPO_WAS_REVERSED;
+            filterConstraint.filterElement = ConstantesMambu.OPERADOR_EQUALS;
+            filterConstraint.value = reversado ? ConstantesMambu.VALOR_CAMPO_VERDADERO : ConstantesMambu.VALOR_CAMPO_FALSO;
+            filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
+            filtros.filterConstraints.Add(filterConstraint);
+
+
+            string json = JsonConvert.SerializeObject(filtros);
+
+            List<Transaccion> transacciones = null;
+            List<Transaccion> acumuladoTransacciones = new List<Transaccion>();
+
+
+            while (!acaba)
+            {
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
+
+                req.Method = Constantes.METODO_POST;
+                req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+                req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
+                req.ContentType = "application/json";
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+
+                using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                {
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+
+
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    transacciones = js.Deserialize<List<Transaccion>>(objText);
+
+                    if (transacciones.Count <= 0)
+                    {
+                        acaba = true;
+                    }
+                    else
+                    {
+                        offset += 1000;
+                        acumuladoTransacciones.AddRange(transacciones);
+                    }
+
+                    transacciones = null;
+                }
+
+            }
+
+            return acumuladoTransacciones;
         }
     }
 }

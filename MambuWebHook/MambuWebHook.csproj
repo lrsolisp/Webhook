@@ -129,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="BD\Consultas.xml" />
+    <Content Include="BD\Transacciones.xml" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />

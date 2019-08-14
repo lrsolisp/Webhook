@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="CRUDV1" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+  <statements>
+
+
+    <insert id="InsertarCredito" parameterClass="Entidades.Credito" resultClass="long">
+      INSERT INTO creditos
+      (
+      idCredito,
+      idSucursal,
+      idGrupo,
+      keyProducto,
+      nombreSucursal,
+      nombreGrupo,
+      nombreProducto,
+      metodologia,
+      fechaContrato,
+      fechaDesembolso,
+      fechaEsperadaLiquidacion,
+      fechaLiquidacion,
+      fechaBaja,
+
+      frecuenciaPagoNumero,
+      frecuenciaPagoUnidad,
+      numeroPagos,
+      diasVencidos,
+      tasaAnual,
+      tasaMensual,
+      tasaDiaria
+      )
+      VALUES
+      (
+      #idCredito#,
+      #idSucursal#,
+      #idGrupo#,
+      #keyProducto#,
+      #nombreSucursal#,
+      #nombreGrupo#,
+      #nombreProducto#,
+      #metodologia#,
+      #fechaContrato#,
+      #fechaDesembolso#,
+      #fechaEsperadaLiquidacion#,
+      #fechaLiquidacion#,
+      #fechaBaja#,
+
+      #frecuenciaPagoNumero#,
+      #frecuenciaPagoUnidad#,
+      #numeroPagos#,
+      #diasVencidos#,
+      #tasaAnual#,
+      #tasaMensual#,
+      #tasaDiaria#
+      )
+
+      <selectKey property="idCredito" resultClass="long" type="post" >
+        SELECT @@identity AS idCredito
+      </selectKey>
+    </insert>
+
+
+    <insert id="InsertarContrato" parameterClass="Entidades.Contrato" resultClass="long">
+      INSERT INTO contratos
+      (
+      idCredito,
+      idContrato,
+      idCliente,
+      montoCapital,
+      montoComisiones,
+      saldo,
+      capitalPagado,
+      interesPagado,
+      estatus,
+      subEstatus
+      )
+      VALUES
+      (
+      #idCredito#,
+      #idContrato#,
+      #idCliente#,
+      #montoCapital#,
+      #montoComisiones#,
+      #saldo#,
+      #capitalPagado#,
+      #interesPagado#,
+      #estatus#,
+      #subEstatus#
+      )
+
+      <selectKey property="idCredito" resultClass="long" type="post" >
+        SELECT @@identity AS idCredito
+      </selectKey>
+    </insert>
+
+
+    <insert id="InsertarCliente" parameterClass="Entidades.Cliente" resultClass="long">
+      INSERT INTO clientes
+      (
+      idCliente,
+      nombre,
+      apellidoPaterno,
+      apellidoMaterno
+      )
+      VALUES
+      (
+      #idCliente#,
+      #nombre#,
+      #apellidoPaterno#,
+      #apellidoMaterno#
+      )
+
+      <selectKey property="idCliente" resultClass="long" type="post" >
+        SELECT @@identity AS idCliente
+      </selectKey>
+    </insert>
+
+
+    <insert id="InsertarAmortizacion" parameterClass="Entidades.Pago" resultClass="long">
+      INSERT INTO amortizaciones
+      (
+      numeroCuota,
+      idContrato,
+      fechaPago,
+      fechaPagado,
+      capitalPagado,
+      capitalEsperado,
+      interesPagado,
+      interesEsperado,
+      estatus
+      )
+      VALUES
+      (
+      #numeroCuota#,
+      #idContrato#,
+      #fechaPago#,
+      #fechaPagado#,
+      #capitalPagado#,
+      #capitalEsperado#,
+      #interesPagado#,
+      #interesEsperado#,
+      #estatus#
+      )
+
+      <selectKey property="numeroCuota" resultClass="long" type="post" >
+        SELECT @@identity AS numeroCuota
+      </selectKey>
+    </insert>
+
+
+    <insert id="InsertarMovimiento" parameterClass="Entidades.Movimiento" resultClass="long">
+      INSERT INTO movimientos
+      (
+      idContrato,
+      codigo,
+      fechaMovimiento,
+      fechaValor,
+      idTransaccion,
+      montoTotal,
+      montoCapital,
+      montoInteres,
+      saldo
+      )
+      VALUES
+      (
+      #idContrato#,
+      #codigo#,
+      #fechaMovimiento#,
+      #fechaValor#,
+      #idTransaccion#,
+      #montoTotal#,
+      #montoCapital#,
+      #montoInteres#,
+      #saldo#
+      )
+
+      <selectKey property="idSucursal" resultClass="long" type="post" >
+        SELECT @@identity AS idSucursal
+      </selectKey>
+    </insert>
+
+
+    <insert id="InsertarContratoPagoCancelado" parameterClass="System.String" resultClass="long">
+      INSERT INTO tmpContratosPagosCancelados
+      (
+      idContrato
+      )
+      VALUES
+      (
+      #value#
+      )
+    </insert>
+
+
+    <delete id="EliminarMovimientosContrato" parameterClass="System.String">
+      DELETE FROM movimientos
+      WHERE idContrato = #value#
+    </delete>
+
+
+    <delete id="EliminarAmortizacionesContrato" parameterClass="System.String">
+      DELETE FROM amortizaciones
+      WHERE idContrato = #value#
+    </delete>
+
+
+    <update id="ActualizarContrato" parameterClass="System.Collections.IDictionary">
+      UPDATE contratos
+
+      <dynamic prepend="SET">
+        <isNotNull property="saldo"           prepend=",">saldo          = #saldo#           </isNotNull>
+        <isNotNull property="capitalPagado"   prepend=",">capitalPagado  = #capitalPagado#   </isNotNull>
+        <isNotNull property="interesPagado"   prepend=",">interesPagado  = #interesPagado#   </isNotNull>
+        <isNotNull property="estatus"         prepend=",">estatus        = #estatus#         </isNotNull>
+      </dynamic>
+
+      <dynamic prepend="WHERE">
+        <isNotNull property="idContrato"  prepend="AND"> idContrato = #idContrato# </isNotNull>
+      </dynamic>
+    </update>
+
+  </statements>
+</sqlMap>
