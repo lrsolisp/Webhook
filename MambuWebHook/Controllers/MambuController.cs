@@ -53,7 +53,7 @@ namespace MambuWebHook.Controllers
                             string idCredito = Operaciones.ObtenerCampoPersonalizadoContrato(loan.id, ConstantesMambu.KEY_CAMPO_ID_CREDITO, string.Empty);
 
                             Dictionary<string, object> parametrosExisteCredito = new Dictionary<string, object>();
-                            parametros.Add("idCredito", idCredito);
+                            parametrosExisteCredito.Add("idCredito", idCredito);
 
                             // se valida que ya exista el crédito 
                             existe = string.Empty;
