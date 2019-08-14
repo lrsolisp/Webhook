@@ -22,7 +22,12 @@ namespace Datos.Impl
 
         public string ValidaExisteContrato(Dictionary<string, object> parametros)
         {
-            return mapper.QueryForObject<String>("ExisteContrato", parametros);
+            return mapper.QueryForObject<string>("ExisteContrato", parametros);
+        }
+
+        public string ExisteCredito(Dictionary<string, object> parametros)
+        {
+            return mapper.QueryForObject<string>("ExisteCredito", parametros);
         }
 
         public void Commit()

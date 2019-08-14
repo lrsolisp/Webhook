@@ -1,8 +1,10 @@
 ﻿using Entidades;
 using MambuWebHook.Filters;
 using Negocio;
+using Negocio.Globales;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -24,12 +26,41 @@ namespace MambuWebHook.Controllers
             {
                 Dictionary<string, object> parametros = new Dictionary<string, object>();
                 parametros.Add("idContrato", contrato.idContrato);
-                //TODO: Crear consulta para validar si el contrato ya existe.
+
+                //Consulta para validar si el contrato ya existe.
+                //Ya que la petición del webhook ha estado enviando valores duplicados
                 string existe = OperacionesBD.ValidaExisteContrato(parametros);
 
+                //Una vez que se valide que el contrato que esta por crearse no existe
+                //se procede a obtener informacion de mambu para posteriormente agregar
+                //la informacion concentrada en la BD de VFMéxico
                 if(existe.Equals("0"))
                 {
-                    //TODO: Traer los datos necesarios del API de MAMBU
+                    //Obtenemos las transacciones del contrato
+                    List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(ConstantesMambu.ESTATUS_ACTIVO, null, null, null, DateTime.Now.ToString("yyyy-MM-dd"), ConstantesMambu.OPERADOR_ON);
+
+                    long contador = 0;
+
+                    if (loans != null && loans.Count > 0)
+                    {
+                        Dictionary<string, string> datos = new Dictionary<string, string>();
+
+                        foreach(var loan in loans)
+                        {
+                            Debug.Print("Contrato Nuevo : " + contador.ToString() + " de " + loans.Count().ToString());
+
+                            int numeroPago = 1;
+                            string idCredito = Operaciones.ObtenerCampoPersonalizadoContrato(loan.id, ConstantesMambu.KEY_CAMPO_ID_CREDITO, string.Empty);
+
+                            Dictionary<string, object> parametrosExisteCredito = new Dictionary<string, object>();
+                            parametros.Add("idCredito", idCredito);
+
+                            // se valida que ya exista el crédito 
+                            existe = string.Empty;
+                            existe = Negocio.OperacionesBD.ExisteCredito(parametrosExisteCredito);
+                        }
+                    }
+                    //List<Transaccion> transacciones =  Operaciones.ObtenerTransacciones(contrato.idContrato);
                     //TODO: Insertar el contrato en la BD
                 }
             }
