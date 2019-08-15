@@ -202,10 +202,10 @@ namespace Negocio
 
             if (clienteMambu != null)
             {
-                cliente.IdCliente = clienteMambu.client.id;
-                cliente.Nombre = clienteMambu.client.firstName;
-                cliente.ApellidoPaterno = clienteMambu.client.lastName;
-                cliente.ApellidoMaterno = clienteMambu.client.middleName;
+                cliente.idCliente = clienteMambu.client.id;
+                cliente.nombre = clienteMambu.client.firstName;
+                cliente.apellidoPaterno = clienteMambu.client.lastName;
+                cliente.apellidoMaterno = clienteMambu.client.middleName;
 
                 var rfc = clienteMambu.customInformation.FirstOrDefault(i => i.customFieldID == ConstantesMambu.ID_CAMPO_RFC_CLIENTE).value;
             }
