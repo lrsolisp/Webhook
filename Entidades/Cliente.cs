@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,114 +9,97 @@ namespace Entidades
 {
     public class Cliente
     {
-        public string IdCliente { get; set; }
-        public string Nombre { get; set; }
-        public string ApellidoPaterno { get; set; }
-        public string ApellidoMaterno { get; set; }
+        public string idCliente { get; set; }
+        public string nombre { get; set; }
+        public string apellidoPaterno { get; set; }
+        public string apellidoMaterno { get; set; }
+        public string fechaNacimiento { get; set; }
 
-        public string FechaNacimiento { get; set; }
-
+        [DataMember(Name = "rfc")]
         public string RFC { get; set; }
 
+        [DataMember(Name = "curp")]
         public string CURP { get; set; }
 
-        public string NumeroSS { get; set; }
-
-        public string Nacionalidad { get; set; }
-
-        public string Residencia { get; set; }
-
-        public string NumLicenciaConducir { get; set; }
-
-        public string EstadoCivil { get; set; }
-
-        public string Sexo { get; set; }
-
-        public string ClaveElectorIFE {get; set;}
-
-        public string NumeroDependientes { get; set; }
-
-        public string FechaDefuncion { get; set; }
-
-        public string IndicadorDefuncion { get; set; }
-
-        public string TipoPersona { get; set; }
-
-        public string Direccion { get; set; }
-
-        public string ColoniaPoblacion { get; set; }
-
-        public string DelegacionMunicipio { get; set; }
-
-        public string Ciudad { get; set; }
-
-        public string Estado { get; set; }
-
+        [DataMember(Name = "cp")]
         public string CP { get; set; }
 
-        public string FechaResidencia { get; set; }
+        [DataMember(Name = "tipoDeZona")]
+        public string TipoDeZona { get; set; }
 
-        public string NumeroTelefonico { get; set; }
+        [DataMember(Name = "municipio")]
+        public string Municipio { get; set; }
 
-        public string TipoDomicilio { get; set; }
+        [DataMember(Name = "nombreLocalidad")]
+        public string NombreLocalidad { get; set; }
 
-        public string TipoAsentamiento { get; set; }
+        [DataMember(Name = "tipoLocalidad")]
+        public string TipoLocalidad { get; set; }
 
-        public string OrigenDomicilio { get; set; }
+        public string nacionalidad { get; set; }
 
-        public string NombreEmpresa { get; set; }
+        [DataMember(Name = "numeroNinosPatrocinados")]
+        public int NumeroNinosPatrocinados { get; set; }
 
-        public string DireccionEmpleo { get; set; }
+        [DataMember(Name = "rolEnElHogar")]
+        public string RolEnElHogar { get; set; }
 
-        public string ColoniaEmpleo { get; set; }
+        [DataMember(Name = "estadoCivil")]
+        public string EstadoCivil { get; set; }
 
-        public string MunicipioEmpleo { get; set; }
+        [DataMember(Name = "escolaridad")]
+        public string Escolaridad { get; set; }
 
-        public string CiudadEmpleo { get; set; }
+        [DataMember(Name = "tipoVivienda")]
+        public string TipoVivienda { get; set; }
 
-        public string EstadoEmpleo { get; set; }
+        [DataMember(Name = "pisoFirme")]
+        public string PisoFirme { get; set; }
 
-        public string CPEmpleo { get; set; }
+        [DataMember(Name = "lineaTelefonica")]
+        public string LineaTelefonica { get; set; }
 
-        public string NumeroTelefonoEmpleo { get; set; }
+        [DataMember(Name = "internet")]
+        public string Internet { get; set; }
 
-        public string ExtensionEmpleo { get; set; }
+        [DataMember(Name = "tvPorCable")]
+        public string TvPorCable { get; set; }
 
-        public string FaxEmpleo { get; set; }
+        [DataMember(Name = "aguaPotable")]
+        public string AguaPotable { get; set; }
 
-        public string PuestoEmpleo { get; set; }
+        [DataMember(Name = "drenaje")]
+        public string Drenaje { get; set; }
 
-        public string FechaContratacionEmpleo { get; set; }
+        [DataMember(Name = "redesSociales")]
+        public string RedesSociales { get; set; }
 
-        public string ClaveMonedaEmpleo { get; set; }
+        [DataMember(Name = "seguroSocial")]
+        public string SeguroSocial { get; set; }
 
-        public string SalarioMensualEmpleo { get; set; }
+        [DataMember(Name = "seguroPopular")]
+        public string SeguroPopular { get; set; }
 
-        public string FechaUltimoDiaEmpleo { get; set; }
+        [DataMember(Name = "hablaDialecto")]
+        public string HablaDialecto { get; set; }
 
-        public string FechaVerificacionEmpleo { get; set; }
+        [DataMember(Name = "numeroFamiliaProspera")]
+        public int NumeroFamiliaProspera { get; set; }
 
-        public string OrigenRazonSocialDomicilio { get; set; }
+        public string sexo { get; set; }
 
-        public string ClaveActualOtorgante { get; set; }
+        public string numeroDependientes { get; set; }
+        
+        public string direccion { get; set; }
 
-        public string NombreOtorgante { get; set; }
+        public string coloniaPoblacion { get; set; }
 
-        public string CuentaActual { get; set; }
+        public string delegacionMunicipio { get; set; }
 
-        public string TipoResponsabilidad { get; set; }
+        public string ciudad { get; set; }
 
-        public string TipoCuenta { get; set; } 
+        public string estado { get; set; }        
 
-        public string TipoContrato { get; set; }
-
-        public string ClaveUnidadMonetaria { get; set; }
-
-        public string ValorActivoValuacion { get; set; }
-
-
-
-
-
+        public string numeroTelefonico { get; set; }                               
     }
 }

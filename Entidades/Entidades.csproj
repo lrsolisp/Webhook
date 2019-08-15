@@ -61,7 +61,7 @@
     <Compile Include="Cliente.cs" />
     <Compile Include="ClienteMambu.cs" />
     <Compile Include="Contrato.cs" />
-    <Compile Include="ContratoMambu.cs" />
+    <Compile Include="ContratoWebHookMambu.cs" />
     <Compile Include="Credito.cs" />
     <Compile Include="CustomField.cs" />
     <Compile Include="CustomFieldSet.cs" />

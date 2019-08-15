@@ -16,6 +16,7 @@ namespace MambuWebHook.Controllers
     public class MambuController : Controller
     {
         private string pathFile = WebConfigurationManager.AppSettings["FileLogPath"];
+        [BasicAuthentication]
         public ActionResult Create()
         {
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
@@ -28,15 +29,15 @@ namespace MambuWebHook.Controllers
         [BasicAuthentication]
         public ActionResult NuevoContrato()
         {
-            ContratoMambu contrato = new ContratoMambu();
+            ContratoWebHookMambu contratoWebHook = new ContratoWebHookMambu();
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
-            contrato = new JavaScriptSerializer().Deserialize<ContratoMambu>(rawSendGridJSON);
+            contratoWebHook = new JavaScriptSerializer().Deserialize<ContratoWebHookMambu>(rawSendGridJSON);
 
-            if (contrato != null)
+            if (contratoWebHook != null)
             {
                 Dictionary<string, object> parametros = new Dictionary<string, object>();
-                parametros.Add("idContrato", contrato.IdContrato);
+                parametros.Add("idContrato", contratoWebHook.IdContrato);
 
                 //Consulta para validar si el contrato ya existe.
                 //Ya que la petición del webhook ha estado enviando valores duplicados
@@ -48,7 +49,7 @@ namespace MambuWebHook.Controllers
                 if(existe.Equals("0"))
                 {
                     //Obtenemos las transacciones del contrato
-                    List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contrato.IdContrato);
+                    List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contratoWebHook.IdContrato);
 
                     long contador = 0;
 
@@ -61,10 +62,10 @@ namespace MambuWebHook.Controllers
                             Debug.Print("Contrato Nuevo : " + contador.ToString() + " de " + loans.Count().ToString());
 
                             int numeroPago = 1;
-                            string idCredito = Operaciones.ObtenerCampoPersonalizadoContrato(loan.id, ConstantesMambu.KEY_CAMPO_ID_CREDITO, string.Empty);
+                            //string idCredito = Operaciones.ObtenerCampoPersonalizadoContrato(loan.id, ConstantesMambu.KEY_CAMPO_ID_CREDITO, string.Empty);
 
                             Dictionary<string, object> parametrosExisteCredito = new Dictionary<string, object>();
-                            parametrosExisteCredito.Add("idCredito", idCredito);
+                            parametrosExisteCredito.Add("idCredito", contratoWebHook.IdCredito);
 
                             // se valida que ya exista el crédito 
                             existe = string.Empty;
@@ -78,13 +79,14 @@ namespace MambuWebHook.Controllers
                             string keyGrupo = string.Empty;
 
                             credito.diasVencidos = 0;
-                            credito.idCredito = idCredito;
+                            credito.idCredito = contratoWebHook.IdCredito;
 
                             //Obtenemos las amortizaciones de contrato
                             List<Repayment> amortizaciones = Operaciones.ObtenerAmortizaciones(loan.id);
 
 
                             // datos de Sucursal
+                            //Validar que el id de sucursal de contratowebhook sea el mismo
                             datos = Operaciones.ObtenerDatosSucursal(loan.assignedBranchKey);
                             credito.idSucursal = datos.Where(z => z.Key.Equals("idSucursal")).FirstOrDefault().Value.ToString();
                             credito.nombreSucursal = datos.Where(z => z.Key.Equals("nombreSucursal")).FirstOrDefault().Value.ToString();
@@ -93,14 +95,19 @@ namespace MambuWebHook.Controllers
                                                         //Se obtiene el cliente y su informacion asociada
                             datosCliente = Operaciones.ObtenerDatosCliente(loan.accountHolderKey);
 
-                            cliente = Operaciones.ObtenerDatosClienteMambu(loan.accountHolderKey);
+                            //cliente = Operaciones.ObtenerDatosClienteMambu(loan.accountHolderKey);
 
                             try
                             {
-                                cliente.IdCliente = datosCliente.Where(z => z.Key.Equals("idCliente")).FirstOrDefault().Value.ToString();
-                                cliente.Nombre = datosCliente.Where(z => z.Key.Equals("nombreCliente")).FirstOrDefault().Value.ToString();
-                                cliente.ApellidoPaterno = datosCliente.Where(z => z.Key.Equals("paternoCliente")).FirstOrDefault().Value.ToString();
-                                cliente.ApellidoMaterno = datosCliente.Where(z => z.Key.Equals("maternoCliente")).FirstOrDefault().Value.ToString();
+                                cliente.idCliente = datosCliente.Where(z => z.Key.Equals("idCliente")).FirstOrDefault().Value.ToString();
+                                cliente.nombre = datosCliente.Where(z => z.Key.Equals("nombreCliente")).FirstOrDefault().Value.ToString();
+                                cliente.apellidoPaterno = datosCliente.Where(z => z.Key.Equals("paternoCliente")).FirstOrDefault().Value.ToString();
+                                cliente.apellidoMaterno = datosCliente.Where(z => z.Key.Equals("maternoCliente")).FirstOrDefault().Value.ToString();
+
+                                //Agregamos al contrato obtenido desde el WebHook los campos que hacen falta
+                                contratoWebHook.Cliente.nombre = cliente.nombre;
+                                contratoWebHook.Cliente.apellidoPaterno = cliente.apellidoPaterno;
+                                contratoWebHook.Cliente.apellidoMaterno = cliente.apellidoMaterno;
 
                                 credito.keyGrupo = datos.Where(z => z.Key.Equals("keyGrupo")).FirstOrDefault().Value.ToString();
                             }
@@ -109,12 +116,12 @@ namespace MambuWebHook.Controllers
                                 credito.keyGrupo = loan.accountHolderKey;
                             }
 
-                            credito.idCliente = cliente.IdCliente;
+                            credito.idCliente = cliente.idCliente;
 
 
                             // datos del Producto
-                            datos = Operaciones.ObtenerDatosProducto(loan.productTypeKey);
-                            credito.nombreProducto = datos.Where(z => z.Key.Equals("nombreProducto")).FirstOrDefault().Value.ToString();
+                            //datos = Operaciones.ObtenerDatosProducto(loan.productTypeKey);
+                            credito.nombreProducto = contratoWebHook.NombreDelProducto;//datos.Where(z => z.Key.Equals("nombreProducto")).FirstOrDefault().Value.ToString();
                             credito.keyProducto = loan.productTypeKey;
 
                             // si no es individual entonces va a buscar los datos del Grupo
@@ -127,13 +134,13 @@ namespace MambuWebHook.Controllers
                             }
                             else
                             {
-                                credito.idGrupo = cliente.IdCliente;
-                                credito.nombreGrupo = cliente.Nombre + " " + cliente.ApellidoPaterno + " " + cliente.ApellidoMaterno;
+                                credito.idGrupo = cliente.idCliente;
+                                credito.nombreGrupo = cliente.nombre + " " + cliente.apellidoPaterno + " " + cliente.apellidoMaterno;
                             }
 
-                            credito.metodologia = Operaciones.ObtenerCampoPersonalizadoContrato(loan.id,
-                                                                                                ConstantesMambu.ID_CAMPO_METODOLOGIA,
-                                                                                                string.Empty);
+                            credito.metodologia = contratoWebHook.Metodologia;//Operaciones.ObtenerCampoPersonalizadoContrato(loan.id,
+                                                                                                //ConstantesMambu.ID_CAMPO_METODOLOGIA,
+                                                                                                //string.Empty);
 
 
                             // la última fecha de las amortizaciones es la Fecha Esperada de Liquidación
@@ -156,9 +163,9 @@ namespace MambuWebHook.Controllers
 
 
                             // datos del contrato
-                            contratoInsertar.idCliente = cliente.IdCliente;
+                            contratoInsertar.idCliente = cliente.idCliente;
                             contratoInsertar.idContrato = loan.id;
-                            contratoInsertar.idCredito = idCredito;
+                            contratoInsertar.idCredito = contratoWebHook.IdCredito;
                             contratoInsertar.montoCapital = loan.loanAmount;
                             contratoInsertar.montoComisiones = loan.feesPaid;
                             contratoInsertar.saldo = loan.principalBalance;
@@ -166,11 +173,11 @@ namespace MambuWebHook.Controllers
                             contratoInsertar.interesPagado = loan.interestPaid;
                             contratoInsertar.estatus = loan.accountState;
                             contratoInsertar.subEstatus = loan.accountSubState;
-                            contratoInsertar.beneficiario = contrato.Beneficiario;
+                            contratoInsertar.beneficiario = contratoWebHook.Beneficiario;
 
 
-                            parametros.Clear();
-                            parametros.Add("idCredito", idCredito);
+                            //parametros.Clear();
+                            //parametros.Add("idCredito", idCredito);
 
                             //Validamos que no exista el crédito
                             if(existe.Equals("0"))
@@ -202,7 +209,7 @@ namespace MambuWebHook.Controllers
 
                             //Validar que el cliente exista en la BD, en caso de que ya se encuentre no se inserta
                             Dictionary<string, object> parametrosCliente = new Dictionary<string, object>();
-                            parametrosCliente.Add("idCliente", cliente.IdCliente);
+                            parametrosCliente.Add("idCliente", cliente.idCliente);
 
                             string existeCliente = OperacionesBD.ExisteCliente(parametrosCliente);
 
@@ -246,7 +253,7 @@ namespace MambuWebHook.Controllers
 
                             cliente = null;
                             credito = null;
-                            contrato = null;
+                            contratoWebHook = null;
                         }
                     }
                 }
