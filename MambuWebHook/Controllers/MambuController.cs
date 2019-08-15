@@ -15,7 +15,7 @@ namespace MambuWebHook.Controllers
     public class MambuController : Controller
     {
         [BasicAuthentication]
-        public ActionResult Create()
+        public ActionResult NuevoContrato()
         {
             ContratoMambu contrato = new ContratoMambu();
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
@@ -182,7 +182,15 @@ namespace MambuWebHook.Controllers
                                 numeroPago += 1;
                             }
 
-                            OperacionesBD.InsertarCliente(cliente);
+
+                            //TODO: Validar que el cliente exista en la BD, en caso de que ya se encuentre no se inserta
+                            Dictionary<string, object> parametrosCliente = new Dictionary<string, object>();
+                            parametrosCliente.Add("idCliente", cliente.idCliente);
+                            string existeCliente = OperacionesBD.ExisteCliente(parametrosCliente);
+                            if(existeCliente.Equals("0"))
+                            {
+                                OperacionesBD.InsertarCliente(cliente);
+                            }
 
                             OperacionesBD.InsertarContrato(contratoInsertar);
 

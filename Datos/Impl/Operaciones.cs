@@ -75,6 +75,11 @@ namespace Datos.Impl
             return insertado;
         }
 
+        public string ExisteCliente(Dictionary<string, object> parametros)
+        {
+            return mapper.QueryForObject<string>("ExisteCliente", parametros);
+        }
+
         public long InsertarMovimiento(Movimiento movimiento)
         {
             long insertado = -1;

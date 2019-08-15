@@ -46,5 +46,10 @@ namespace Negocio
         {
             return operacionesBD.InsertarMovimiento(movimiento);
         }
+
+        public static string ExisteCliente(Dictionary<string, object> parametros)
+        {
+            return operacionesBD.ExisteCliente(parametros);
+        }
     }
 }

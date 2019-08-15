@@ -37,6 +37,18 @@
       SELECT '0'
     </select>
 
+    <select id="ExisteCliente" parameterClass="System.String" resultClass="System.String">
+      IF EXISTS
+      (
+      SELECT 1
+      FROM clientes
+      WHERE  idCliente = #value#
+      )
+      SELECT '1'
+      ELSE
+      SELECT '0'
+    </select>
+
 
     <select id="ExisteTransaccion" parameterClass="long" resultClass="System.String">
       IF EXISTS
