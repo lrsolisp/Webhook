@@ -174,6 +174,46 @@ namespace Negocio
 
         }
 
+        public static Cliente ObtenerDatosClienteMambu(string id)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            Cliente cliente = new Cliente();
+            ClienteMambu clienteMambu = new ClienteMambu();
+            Dictionary<string, string> datos = new Dictionary<string, string>();
+
+
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_CLIENT + "/" + id + "?fulldetails=true");
+
+            req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
+            req.Method = Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var objText = streamReader.ReadToEnd();
+                clienteMambu = js.Deserialize<ClienteMambu>(objText);
+            }
+
+            if (clienteMambu != null)
+            {
+                cliente.IdCliente = clienteMambu.client.id;
+                cliente.Nombre = clienteMambu.client.firstName;
+                cliente.ApellidoPaterno = clienteMambu.client.lastName;
+                cliente.ApellidoMaterno = clienteMambu.client.middleName;
+
+                var rfc = clienteMambu.customInformation.FirstOrDefault(i => i.customFieldID == ConstantesMambu.ID_CAMPO_RFC_CLIENTE).value;
+            }
+
+            return cliente;
+
+        }
+
         public static Dictionary<string, string> ObtenerDatosGrupo(string id)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
@@ -401,11 +441,11 @@ namespace Negocio
                 {
                     var objText = streamReader.ReadToEnd();
 
-                    campoPersonalizado = JsonConvert.DeserializeObject<List<Entidades.CustomFieldValue>>(objText);
+                    campoPersonalizado = JsonConvert.DeserializeObject<List<CustomFieldValue>>(objText);
 
                     if (campoPersonalizado != null)
                     {
-                        if (tipoDato.Equals(Negocio.Globales.Constantes.OBJETO_USUARIO))
+                        if (tipoDato.Equals(Constantes.OBJETO_USUARIO))
                         {
                             valorResultado = campoPersonalizado[0].linkedEntityKeyValue;
                         }

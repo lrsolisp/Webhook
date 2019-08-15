@@ -9,136 +9,142 @@ namespace Entidades
 {
     public class ContratoMambu
     {
-        [DataMember]
-        public string idContrato { get; set; }
+        [DataMember (Name = "idContrato")]
+        public string IdContrato { get; set; }
 
-        [DataMember]
-        public string idCliente { get; set; }
+        [DataMember (Name = "idCliente")]
+        public string IdCliente { get; set; }
 
-        [DataMember]
-        public string idCredito { get; set; }
+        [DataMember (Name = "idCredito")]
+        public string IdCredito { get; set; }
 
-        [DataMember]
-        public string nombreSucursal { get; set; }
+        [DataMember (Name = "nombreSucursal")]
+        public string NombreSucursal { get; set; }
 
-        [DataMember]
-        public string nombreDelProducto { get; set; }
+        [DataMember (Name = "nombreDelProducto")]
+        public string NombreDelProducto { get; set; }
 
-        [DataMember]
-        public string metodologia { get; set; }
+        [DataMember (Name = "metodologia")]
+        public string Metodologia { get; set; }
 
-        [DataMember]
-        public double tasaInteres { get; set; }
+        [DataMember (Name = "tasaInteres")]
+        public double TasaInteres { get; set; }
 
-        [DataMember]
-        public double montoPrestamo { get; set; }
+        [DataMember (Name = "montoPrestamo")]
+        public double MontoPrestamo { get; set; }
 
-        [DataMember]
-        public string estatus { get; set; }
+        [DataMember (Name = "estatus")]
+        public string Estatus { get; set; }
 
-        [DataMember]
-        public double ingresosMensuales { get; set; }
+        [DataMember (Name = "ingresosMensuales")]
+        public double IngresosMensuales { get; set; }
 
-        [DataMember]
-        public double gastosMensuales { get; set; }
+        [DataMember (Name = "gastosMensuales")]
+        public double GastosMensuales { get; set; }
 
-        [DataMember]
-        public string utilidad { get; set; }
+        [DataMember (Name = "utilidad")]
+        public string Utilidad { get; set; }
 
-        [DataMember]
-        public string firmaElectronica { get; set; }
+        [DataMember (Name = "firmaElectronica")]
+        public string FirmaElectronica { get; set; }
 
-        [DataMember]
-        public int experienciaAnios { get; set; }
+        [DataMember (Name = "experienciaAnios")]
+        public int ExperienciaAnios { get; set; }
 
-        [DataMember]
-        public string sector { get; set; }
+        [DataMember (Name = "sector")]
+        public string Sector { get; set; }
 
-        [DataMember]
-        public string actividadEconomica { get; set; }
+        [DataMember (Name = "actividadEconomica")]
+        public string ActividadEconomica { get; set; }
 
-        [DataMember]
-        public string objectivoDelCredito { get; set; }
+        [DataMember (Name = "objectivoDelCredito")]
+        public string ObjectivoDelCredito { get; set; }
 
-        [DataMember]
-        public int empleadosCreadosMT { get; set; }
+        [DataMember (Name = "empleadosCreadosMT")]
+        public int EmpleadosCreadosMT { get; set; }
 
-        [DataMember]
-        public int empleadosCreadosTC { get; set; }
+        [DataMember (Name = "empleadosCreadosTC")]
+        public int EmpleadosCreadosTC { get; set; }
 
-        [DataMember]
-        public int empleadosSostenidosMT { get; set; }
+        [DataMember (Name = "empleadosSostenidosMT")]
+        public int EmpleadosSostenidosMT { get; set; }
 
-        [DataMember]
-        public int empleadosSostenidosTC { get; set; }
+        [DataMember (Name = "empleadosSostenidosTC")]
+        public int EmpleadosSostenidosTC { get; set; }
 
-        [DataMember]
-        public int numeroDeNinosEmpleados { get; set; }
+        [DataMember (Name = "numeroDeNinosEmpleados")]
+        public int NumeroDeNinosEmpleados { get; set; }
 
-        [DataMember]
-        public string tipoDeZona { get; set; }
+        [DataMember (Name = "tipoDeZona")]
+        public string TipoDeZona { get; set; }
 
-        [DataMember]
-        public string municipio { get; set; }
+        [DataMember (Name = "municipio")]
+        public string Municipio { get; set; }
 
-        [DataMember]
-        public string nombreLocalidad { get; set; }
+        [DataMember (Name = "nombreLocalidad")]
+        public string NombreLocalidad { get; set; }
 
-        [DataMember]
-        public string tipoLocalidad { get; set; }
+        [DataMember (Name = "tipoLocalidad")]
+        public string TipoLocalidad { get; set; }
 
-        [DataMember]
+        [DataMember (Name = "PDA")]
         public string PDA { get; set; }
 
-        [DataMember]
-        public int numeroNinosPatrocinados { get; set; }
+        [DataMember (Name = "numeroNinosPatrocinados")]
+        public int NumeroNinosPatrocinados { get; set; }
 
-        [DataMember]
-        public string rolEnElHogar { get; set; }
+        [DataMember (Name = "rolEnElHogar")]
+        public string RolEnElHogar { get; set; }
 
-        [DataMember]
-        public string estadoCivil { get; set; }
+        [DataMember (Name = "estadoCivil")]
+        public string EstadoCivil { get; set; }
 
-        [DataMember]
-        public string escolaridad { get; set; }
+        [DataMember (Name = "escolaridad")]
+        public string Escolaridad { get; set; }
 
-        [DataMember]
-        public string tipoVivienda { get; set; }
+        [DataMember (Name = "tipoVivienda")]
+        public string TipoVivienda { get; set; }
 
-        [DataMember]
-        public string pisoFirme { get; set; }
+        [DataMember (Name = "pisoFirme")]
+        public string PisoFirme { get; set; }
 
-        [DataMember]
-        public string lineaTelefonica { get; set; }
+        [DataMember (Name = "lineaTelefonica")]
+        public string LineaTelefonica { get; set; }
 
-        [DataMember]
-        public string internet { get; set; }
+        [DataMember (Name = "internet")]
+        public string Internet { get; set; }
 
-        [DataMember]
-        public string tvPorCable { get; set; }
+        [DataMember (Name = "tvPorCable")]
+        public string TvPorCable { get; set; }
 
-        [DataMember]
-        public string aguaPotable { get; set; }
+        [DataMember (Name = "aguaPotable")]
+        public string AguaPotable { get; set; }
 
-        [DataMember]
-        public string drenaje { get; set; }
+        [DataMember (Name = "drenaje")]
+        public string Drenaje { get; set; }
 
-        [DataMember]
-        public string redesSociales { get; set; }
+        [DataMember (Name = "redesSociales")]
+        public string RedesSociales { get; set; }
 
-        [DataMember]
-        public string seguroSocial { get; set; }
+        [DataMember (Name = "seguroSocial")]
+        public string SeguroSocial { get; set; }
 
-        [DataMember]
-        public string seguroPopular { get; set; }
+        [DataMember (Name = "seguroPopular")]
+        public string SeguroPopular { get; set; }
 
-        [DataMember]
-        public string hablaDialecto { get; set; }
+        [DataMember (Name = "hablaDialecto")]
+        public string HablaDialecto { get; set; }
 
-        [DataMember]
-        public int numeroFamiliaProspera { get; set; }
+        [DataMember (Name = "numeroFamiliaProspera")]
+        public int NumeroFamiliaProspera { get; set; }
 
-        [DataMember]
-        public int numeroDeNinos { get; set; }
+        [DataMember (Name = "numeroDeNinos")]
+        public int NumeroDeNinos { get; set; }
+
+        [DataMember (Name ="numeroIdentificacion")]
+        public string NumeroIdentificacion { get; set; }
+
+        [DataMember (Name ="beneficiario")]
+        public string Beneficiario { get; set; }
     }
 }

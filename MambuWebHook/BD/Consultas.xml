@@ -37,12 +37,12 @@
       SELECT '0'
     </select>
 
-    <select id="ExisteCliente" parameterClass="System.String" resultClass="System.String">
+    <select id="ExisteCliente" parameterClass="System.Collections.IDictionary" resultClass="System.String">
       IF EXISTS
       (
       SELECT 1
       FROM clientes
-      WHERE  idCliente = #value#
+      WHERE  idCliente = #idCliente#
       )
       SELECT '1'
       ELSE

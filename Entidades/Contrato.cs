@@ -18,6 +18,7 @@ namespace Entidades
         public decimal interesPagado { get; set; }
         public string estatus { get; set; }
         public string subEstatus { get; set; }
+        public string beneficiario { get; set; }
 
     }
 }

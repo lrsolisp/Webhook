@@ -72,7 +72,8 @@
       capitalPagado,
       interesPagado,
       estatus,
-      subEstatus
+      subEstatus,
+      beneficiario
       )
       VALUES
       (
@@ -85,7 +86,8 @@
       #capitalPagado#,
       #interesPagado#,
       #estatus#,
-      #subEstatus#
+      #subEstatus#,
+      #beneficiario#
       )
 
       <selectKey property="idCredito" resultClass="long" type="post" >
