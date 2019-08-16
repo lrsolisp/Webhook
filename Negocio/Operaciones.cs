@@ -157,7 +157,24 @@ namespace Negocio
                 datos.Add("nombreCliente", objeto.client.firstName);
                 datos.Add("paternoCliente", objeto.client.middleName);
                 datos.Add("maternoCliente", objeto.client.lastName);
-
+                datos.Add("fechaNacimiento", objeto.client.birthDate);
+                datos.Add("rfc", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_RFC_CLIENTE).value);
+                datos.Add("curp", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CURP).value);
+                datos.Add("sexo", objeto.client.gender);
+                datos.Add("direccion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CALLE).value + " "
+                                        + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_EXTERIOR).value + " "
+                                        + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_INTERIOR).value);
+                datos.Add("coloniaPoblacion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_COLONIA).value);
+                
+                if(objeto.client.homePhone == null)
+                {
+                    datos.Add("numeroTelefonico", objeto.client.mobilePhone1);
+                }                    
+                else
+                {
+                    datos.Add("numeroTelefonico", objeto.client.homePhone);
+                }
+                
                 if (objeto.groupKeys.Count > 0)
                 {
                     datos.Add("keyGrupo", objeto.groupKeys.FirstOrDefault().ToString());

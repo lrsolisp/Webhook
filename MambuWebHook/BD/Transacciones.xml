@@ -102,14 +102,40 @@
       idCliente,
       nombre,
       apellidoPaterno,
-      apellidoMaterno
+      apellidoMaterno,
+      fechaNacimiento,
+      RFC,
+      CURP,
+      CP,
+      nacionalidad,
+      sexo,
+      numeroDependientes,
+      direccion,
+      coloniaPoblacion,
+      delegacionMunicipio,
+      ciudad,
+      estado,
+      numeroTelefonico
       )
       VALUES
       (
       #idCliente#,
       #nombre#,
       #apellidoPaterno#,
-      #apellidoMaterno#
+      #apellidoMaterno#,
+      #fechaNacimiento#,
+      #RFC#,
+      #CURP#,
+      #CP#,
+      #nacionalidad#,
+      #sexo#,
+      #NumeroNinosPatrocinados#,
+      #direccion#,
+      #coloniaPoblacion#,
+      #municipio#,
+      #ciudad#,
+      #estado#,
+      #numeroTelefonico#
       )
 
       <selectKey property="idCliente" resultClass="long" type="post" >

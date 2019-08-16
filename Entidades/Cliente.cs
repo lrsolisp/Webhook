@@ -28,7 +28,7 @@ namespace Entidades
         public string TipoDeZona { get; set; }
 
         [DataMember(Name = "municipio")]
-        public string Municipio { get; set; }
+        public string municipio { get; set; }
 
         [DataMember(Name = "nombreLocalidad")]
         public string NombreLocalidad { get; set; }
