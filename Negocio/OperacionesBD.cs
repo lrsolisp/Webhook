@@ -51,5 +51,10 @@ namespace Negocio
         {
             return operacionesBD.ExisteCliente(parametros);
         }
+
+        public static string ExisteTransaccion(long transactionId)
+        {
+            return operacionesBD.ExisteTransaccion(transactionId);
+        }
     }
 }

@@ -75,6 +75,11 @@ namespace Datos.Impl
             return insertado;
         }
 
+        public string ExisteTransaccion(long transactionId)
+        {
+            return mapper.QueryForObject<string>("ExisteTransaccion", transactionId);
+        }
+
         public string ExisteCliente(Dictionary<string, object> parametros)
         {
             return mapper.QueryForObject<string>("ExisteCliente", parametros);

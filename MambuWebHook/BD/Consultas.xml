@@ -30,7 +30,7 @@
       (
       SELECT 1
       FROM contratos
-      WHERE  idContrato = #value#
+      WHERE  idContrato = #idContrato#
       )
       SELECT '1'
       ELSE
