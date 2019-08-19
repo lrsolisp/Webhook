@@ -56,5 +56,20 @@ namespace Negocio
         {
             return operacionesBD.ExisteTransaccion(transactionId);
         }
+
+        public static void BorrarAmortizacionesContrato(string idContrato)
+        {
+            operacionesBD.BorrarAmortizacionesContrato(idContrato);
+        }
+
+        public static void ActualizarContrato(Dictionary<string, object> parametros)
+        {
+            operacionesBD.ActualizarContrato(parametros);
+        }
+
+        public static void BorrarMovimientosContratos(string id)
+        {
+            operacionesBD.BorrarMovimientosContrato(id);
+        }
     }
 }

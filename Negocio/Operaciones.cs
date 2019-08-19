@@ -388,6 +388,57 @@ namespace Negocio
             return acumuladoContratos;
         }
 
+        public static Loan ObtenerCuentaPrestamo(string parentAccountKey)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            List<Loan> contrato = null;
+            List<FilterConstraints> filterConstraints = new List<FilterConstraints>();
+
+            FilterConstraints filterConstraint = new FilterConstraints();
+            filterConstraint = null;
+            filterConstraint = new FilterConstraints();
+            filterConstraint.filterSelection = Constantes.FILTRO_CAMPO_ENCODED_KEY;
+            filterConstraint.filterElement = Constantes.OPERADOR_EQUALS;
+            filterConstraint.value = parentAccountKey;
+            filterConstraint.dataItemType = Constantes.DATA_ITEM_TYPE_LOANS;
+            filterConstraints.Add(filterConstraint);
+
+            Filtros filtros = new Filtros();
+            filtros.filterConstraints = filterConstraints;
+
+            string json = JsonConvert.SerializeObject(filtros);
+
+
+            WebRequest req = WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_LOAN + "/" + Constantes.API_MAMBU_SEARCH + "?" + Constantes.LIMITE_CONSULTA);
+
+            req.ContentType = "application/json; charset=utf-8";
+            req.Method = Constantes.METODO_POST;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+            {
+                streamWriter.Write(json);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var objText = streamReader.ReadToEnd();
+                contrato = js.Deserialize<List<Loan>>(objText);
+            }
+
+
+            return contrato[0];
+        }
+
         /// <summary>
         /// Método para obtener las amortizaciones por contrato
         /// </summary>
@@ -485,7 +536,7 @@ namespace Negocio
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.sandbox.mambu.com/api/loans/" + idContrato + "/transactions" + Constantes.LIMITE_CONSULTA);
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"]+ "/loans/" + idContrato + "/transactions/" + Constantes.LIMITE_CONSULTA);
 
             req.Method = Constantes.METODO_GET;
             req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));

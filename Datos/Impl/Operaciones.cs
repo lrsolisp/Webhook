@@ -75,9 +75,24 @@ namespace Datos.Impl
             return insertado;
         }
 
+        public void BorrarAmortizacionesContrato(string idContrato)
+        {
+            Object objeto = mapper.Delete("EliminarAmortizacionesContrato", idContrato);
+        }
+
         public string ExisteTransaccion(long transactionId)
         {
             return mapper.QueryForObject<string>("ExisteTransaccion", transactionId);
+        }
+
+        public void BorrarMovimientosContrato(string id)
+        {
+            Object objeto = mapper.Delete("EliminarMovimientosContrato", id);
+        }
+
+        public void ActualizarContrato(Dictionary<string, object> parametros)
+        {
+            mapper.Update("ActualizarContrato", parametros);
         }
 
         public string ExisteCliente(Dictionary<string, object> parametros)

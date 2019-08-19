@@ -265,20 +265,182 @@ namespace MambuWebHook.Controllers
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
             contratoWebHook = new JavaScriptSerializer().Deserialize<ContratoWebHookMambu>(rawSendGridJSON);
+            long contador = 0;
             if (contratoWebHook != null)
             {
-                //Obtenemos el contrato(s) asociado
+                ////Obtenemos el contrato(s) asociado
                 List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contratoWebHook.IdContrato);
-                if(loans.Count > 0)
+
+                if (loans.Count > 0)
                 {
+
                     List<Transaccion> transacciones = Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_REPAYMENT, loans.FirstOrDefault().encodedKey).ToList();
+                    foreach (var transaccion in transacciones)
+                    {
+                        int numeroPago = 1;
+                        string existe = OperacionesBD.ExisteTransaccion(transaccion.transactionId);
+                        Loan contrato = Operaciones.ObtenerCuentaPrestamo(transaccion.parentAccountKey);
+                        Movimiento movimiento = new Movimiento();
+
+                        movimiento.codigo = Constantes.MOVIMIENTO_PAGO;
+                        movimiento.fechaMovimiento = DateTime.Parse(transaccion.creationDate);
+                        movimiento.fechaValor = DateTime.Parse(transaccion.entryDate);
+                        movimiento.idContrato = contrato.id;
+                        movimiento.idTransaccion = transaccion.transactionId;
+                        movimiento.montoCapital = transaccion.principalPaid;
+                        movimiento.montoInteres = transaccion.interestPaid;
+                        movimiento.montoTotal = transaccion.amount;
+                        movimiento.saldo = transaccion.principalBalance;
+
+                        if (existe.Equals("0"))
+                        {
+                            long insertado = OperacionesBD.InsertarMovimiento(movimiento);
+
+                            // amortizaciones del contrato
+                            OperacionesBD.BorrarAmortizacionesContrato(contrato.id);
+                            List<Repayment> amortizaciones = Operaciones.ObtenerAmortizaciones(contrato.id).OrderBy(x => x.dueDate).ToList();
+
+
+                            // inserta el calendario de pagos
+                            foreach (Repayment amortizacion in amortizaciones)
+                            {
+                                Pago pago = new Pago();
+
+                                pago.numeroCuota = numeroPago;
+                                pago.idContrato = contrato.id;
+                                pago.estatus = amortizacion.state;
+                                pago.fechaPago = DateTime.Parse(amortizacion.dueDate);
+                                pago.fechaPagado = DateTime.Parse(amortizacion.repaidDate == null ? amortizacion.repaidDate = "01/01/1900" : amortizacion.repaidDate);
+                                pago.capitalEsperado = decimal.Parse(amortizacion.principalDue);
+                                pago.interesEsperado = decimal.Parse(amortizacion.interestDue);
+                                pago.capitalPagado = decimal.Parse(amortizacion.principalPaid);
+                                pago.interesPagado = decimal.Parse(amortizacion.interestPaid);
+
+                                // inserta las Amortizaciones
+                                OperacionesBD.InsertarAmortizaciones(pago);
+
+                                pago = null;
+
+                                numeroPago += 1;
+
+                            }
+                            // actualiza los datos del contrato
+                            Dictionary<string, object> parametros = new Dictionary<string, object>();
+
+                            parametros.Add("saldo", contrato.principalBalance);
+                            parametros.Add("capitalPagado", contrato.principalPaid.ToString());
+                            parametros.Add("interesPagado", contrato.interestPaid.ToString());
+                            parametros.Add("estatus", contrato.accountState);
+                            parametros.Add("idContrato", contrato.id);
+
+                            OperacionesBD.ActualizarContrato(parametros);
+                        }
+
+                        movimiento = null;
+
+                        contador += 1;
+                    }
+                    return new HttpStatusCodeResult(200);
                 }
-                return new HttpStatusCodeResult(200);
+                else
+                {
+                    return new HttpStatusCodeResult(404);
+                }
             }
             else
             {
                 return new HttpStatusCodeResult(404);
             }
+        }
+
+        [BasicAuthentication]
+        [HttpPost]
+        public ActionResult CancelarPagos(string idContrato)
+        {
+            long contador = 0;
+
+            List<Transaccion> transaccions = Operaciones.ObtenerTransacciones(idContrato);
+
+            var contratosAgrupados = (from x in transaccions
+                                      group x by new
+                                      {
+                                          x.parentAccountKey
+                                      } into campos
+                                      select new
+                                      {
+                                          idContrato = campos.Key.parentAccountKey
+                                      });
+            foreach(var valor in contratosAgrupados)
+            {
+                int numeroPago = 1;
+
+                Loan contrato = Operaciones.ObtenerCuentaPrestamo(valor.idContrato);
+
+                OperacionesBD.BorrarMovimientosContratos(contrato.id);
+
+                // obtiene nuevamente las transacciones del contrato
+                List<Transaccion> transaccionesNuevas = Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_DISBURSMENT, valor.idContrato).ToList();
+                transaccionesNuevas.AddRange(Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_REPAYMENT, valor.idContrato).ToList());
+
+                foreach (Transaccion transaccion in transaccionesNuevas)
+                {
+                    Movimiento movimiento = new Movimiento();
+
+                    movimiento.codigo = transaccion.type.Equals(Constantes.TRANSACTIONS_TYPE_REPAYMENT) ? Constantes.MOVIMIENTO_PAGO : Constantes.MOVIMIENTO_DESEMBOLSO;
+                    movimiento.fechaMovimiento = DateTime.Parse(transaccion.creationDate);
+                    movimiento.fechaValor = DateTime.Parse(transaccion.entryDate);
+                    movimiento.idContrato = contrato.id;
+                    movimiento.idTransaccion = transaccion.transactionId;
+                    movimiento.montoCapital = transaccion.principalPaid;
+                    movimiento.montoInteres = transaccion.interestPaid;
+                    movimiento.montoTotal = transaccion.amount;
+                    movimiento.saldo = transaccion.principalBalance;
+
+                    OperacionesBD.InsertarMovimiento(movimiento);
+
+                    movimiento = null;
+                }
+
+                // amortizaciones del contrato
+                OperacionesBD.BorrarAmortizacionesContrato(contrato.id);
+                List<Repayment> amortizaciones = Operaciones.ObtenerAmortizaciones(contrato.id).OrderBy(x => x.dueDate).ToList();
+
+                // inserta el calendario de pagos
+                foreach (Repayment amortizacion in amortizaciones)
+                {
+                    Pago pago = new Pago();
+
+                    pago.numeroCuota = numeroPago;
+                    pago.idContrato = contrato.id;
+                    pago.estatus = amortizacion.state;
+                    pago.fechaPago = DateTime.Parse(amortizacion.dueDate);
+                    pago.fechaPagado = DateTime.Parse(amortizacion.repaidDate == null ? amortizacion.repaidDate = "01/01/1900" : amortizacion.repaidDate);
+                    pago.capitalEsperado = decimal.Parse(amortizacion.principalDue);
+                    pago.interesEsperado = decimal.Parse(amortizacion.interestDue);
+                    pago.capitalPagado = decimal.Parse(amortizacion.principalPaid);
+                    pago.interesPagado = decimal.Parse(amortizacion.interestPaid);
+
+
+                    // inserta las Amortizaciones
+                    OperacionesBD.InsertarAmortizaciones(pago);
+
+                    numeroPago += 1;
+                }
+
+                // actualiza los datos del contrato
+                Dictionary<string, object> parametros = new Dictionary<string, object>();
+
+                parametros.Add("saldo", contrato.principalBalance);
+                parametros.Add("capitalPagado", contrato.principalPaid.ToString());
+                parametros.Add("interesPagado", contrato.interestPaid.ToString());
+                parametros.Add("estatus", contrato.accountState);
+                parametros.Add("idContrato", contrato.id);
+
+                OperacionesBD.ActualizarContrato(parametros);
+
+                contador += 1;
+            }
+            return new HttpStatusCodeResult(200);
         }
     }
 }
