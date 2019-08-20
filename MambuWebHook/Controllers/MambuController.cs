@@ -16,10 +16,12 @@ namespace MambuWebHook.Controllers
     public class MambuController : Controller
     {
         private string pathFile = WebConfigurationManager.AppSettings["FileLogPath"];
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         [BasicAuthentication]
         public ActionResult Create()
-        {
-            System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
+        {            
+            System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);            
             string rawSendGridJSON = reader.ReadToEnd();
             System.IO.File.AppendAllText(pathFile, rawSendGridJSON);
 
@@ -32,6 +34,7 @@ namespace MambuWebHook.Controllers
             ContratoWebHookMambu contratoWebHook = new ContratoWebHookMambu();
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
+            log.Info("---------> Se obtiene el JSON " + rawSendGridJSON);
             contratoWebHook = new JavaScriptSerializer().Deserialize<ContratoWebHookMambu>(rawSendGridJSON);
 
             if (contratoWebHook != null)
@@ -42,7 +45,7 @@ namespace MambuWebHook.Controllers
                 //Consulta para validar si el contrato ya existe.
                 //Ya que la petición del webhook ha estado enviando valores duplicados
                 string existe = OperacionesBD.ValidaExisteContrato(parametros);
-
+                log.Info("--------> Validacion existencia de contrato " + existe);
                 //Una vez que se valide que el contrato que esta por crearse no existe
                 //se procede a obtener informacion de mambu para posteriormente agregar
                 //la informacion concentrada en la BD de VFMéxico
@@ -55,10 +58,13 @@ namespace MambuWebHook.Controllers
 
                     if (loans != null && loans.Count > 0)
                     {
+                        log.Info("--------Existen contratos---------");
+
                         Dictionary<string, string> datos = new Dictionary<string, string>();
 
                         foreach (var loan in loans)
                         {
+                            log.Debug("Contrato Nuevo: " + contador.ToString() + " de " + loans.Count().ToString());
                             Debug.Print("Contrato Nuevo : " + contador.ToString() + " de " + loans.Count().ToString());
 
                             int numeroPago = 1;
@@ -69,6 +75,8 @@ namespace MambuWebHook.Controllers
                             // se valida que ya exista el crédito 
                             existe = string.Empty;
                             existe = OperacionesBD.ExisteCredito(parametrosExisteCredito);
+                            log.Info("--------> Validacion existencia de credito " + existe);
+
 
                             //Creamos instancias de los objetos que se obtendra información
                             Credito credito = new Credito();
@@ -83,16 +91,22 @@ namespace MambuWebHook.Controllers
                             //Obtenemos las amortizaciones de contrato
                             List<Repayment> amortizaciones = Operaciones.ObtenerAmortizaciones(loan.id);
 
+                            log.Info("Se obtuvieron " + amortizaciones.Count().ToString() + " amortizaciones");
 
                             // datos de Sucursal
                             //Validar que el id de sucursal de contratowebhook sea el mismo
                             datos = Operaciones.ObtenerDatosSucursal(loan.assignedBranchKey);
+
+                            log.Info("Se obtuvieron los datos de la sucursal: " + credito.idSucursal);
+
                             credito.idSucursal = datos.Where(z => z.Key.Equals("idSucursal")).FirstOrDefault().Value.ToString();
                             credito.nombreSucursal = datos.Where(z => z.Key.Equals("nombreSucursal")).FirstOrDefault().Value.ToString();
 
                             Dictionary<string, string> datosCliente = new Dictionary<string, string>();
                             //Se obtiene el cliente y su informacion faltante
                             datosCliente = Operaciones.ObtenerDatosCliente(loan.accountHolderKey);
+
+                            log.Info("Se obtuvieron los datos del cliente: " + cliente.nombre + " " + cliente.apellidoPaterno);
 
                             try
                             {
@@ -130,6 +144,8 @@ namespace MambuWebHook.Controllers
                             if (!loan.accountHolderKey.Equals(credito.keyGrupo))
                             {
                                 Dictionary<string, string> datosGrupo = Operaciones.ObtenerDatosGrupo(credito.keyGrupo);
+
+                                log.Info("Se obtienen los datos del grupo: " + credito.idGrupo);
 
                                 credito.idGrupo = datosGrupo.Where(z => z.Key.Equals("idGrupo")).FirstOrDefault().Value.ToString();
                                 credito.nombreGrupo = datosGrupo.Where(z => z.Key.Equals("nombreGrupo")).FirstOrDefault().Value.ToString();
@@ -178,6 +194,8 @@ namespace MambuWebHook.Controllers
                             if (existe.Equals("0"))
                             {
                                 OperacionesBD.InsertarCredito(credito);
+
+                                log.Info("Se inserto el credito : " + credito.idCredito);
                             }
 
                             foreach (Repayment amortizacion in amortizaciones)
@@ -198,6 +216,8 @@ namespace MambuWebHook.Controllers
                                 // inserta las Amortizaciones
                                 OperacionesBD.InsertarAmortizaciones(pago);
 
+                                log.Info("Se inserto el pago: " + pago.idContrato);
+
                                 numeroPago += 1;
                             }
 
@@ -208,14 +228,22 @@ namespace MambuWebHook.Controllers
 
                             string existeCliente = OperacionesBD.ExisteCliente(parametrosCliente);
 
+                            log.Info("Existe el cliente: " + existeCliente);
+
                             if (existeCliente.Equals("0"))
                             {
                                 OperacionesBD.InsertarCliente(contratoWebHook.Cliente);
+
+                                log.Info("Se inserto el cliente: " + contratoWebHook.Cliente.nombre + " " + contratoWebHook.Cliente.nombre);
                             }
 
                             OperacionesBD.InsertarContrato(contratoInsertar);
 
+                            log.Info("Se inserto el contrato: " + contratoInsertar.idContrato);
+
                             List<Transaccion> transacciones = Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_DISBURSMENT, loan.encodedKey).ToList();
+
+                            log.Info("Se obtienen transacciones nuevas: " + transacciones.Count().ToString());
 
                             transacciones.AddRange(Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_REPAYMENT, loan.encodedKey).ToList());
 
@@ -234,6 +262,8 @@ namespace MambuWebHook.Controllers
                                 movimiento.saldo = transaccion.principalBalance;
 
                                 OperacionesBD.InsertarMovimiento(movimiento);
+
+                                log.Info("Se inserto movimiento: " + movimiento.codigo);
                             }
 
                             transacciones.Clear();
@@ -264,6 +294,9 @@ namespace MambuWebHook.Controllers
             ContratoWebHookMambu contratoWebHook = new ContratoWebHookMambu();
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
+
+            log.Info("---------> Se obtiene el JSON " + rawSendGridJSON);
+
             contratoWebHook = new JavaScriptSerializer().Deserialize<ContratoWebHookMambu>(rawSendGridJSON);
             long contador = 0;
             if (contratoWebHook != null)
@@ -274,12 +307,22 @@ namespace MambuWebHook.Controllers
                 if (loans.Count > 0)
                 {
 
+                    log.Info("--------Existen contratos---------");
+
                     List<Transaccion> transacciones = Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_REPAYMENT, loans.FirstOrDefault().encodedKey).ToList();
                     foreach (var transaccion in transacciones)
                     {
+                        log.Debug("Transaccion: " + contador.ToString() + " de " + transacciones.Count().ToString());
+
                         int numeroPago = 1;
                         string existe = OperacionesBD.ExisteTransaccion(transaccion.transactionId);
+
+                        log.Info("Existe transaccion: " + existe);
+
                         Loan contrato = Operaciones.ObtenerCuentaPrestamo(transaccion.parentAccountKey);
+
+                        log.Info("Obtenemos contrato: " + contrato.id);
+
                         Movimiento movimiento = new Movimiento();
 
                         movimiento.codigo = Constantes.MOVIMIENTO_PAGO;
@@ -296,10 +339,17 @@ namespace MambuWebHook.Controllers
                         {
                             long insertado = OperacionesBD.InsertarMovimiento(movimiento);
 
+
+                            log.Info("Se inserto el movimiento: " + movimiento.codigo);
+
                             // amortizaciones del contrato
                             OperacionesBD.BorrarAmortizacionesContrato(contrato.id);
+
+                            log.Info("Borrado de amortizaciones en contrato: " + contrato.id);
+
                             List<Repayment> amortizaciones = Operaciones.ObtenerAmortizaciones(contrato.id).OrderBy(x => x.dueDate).ToList();
 
+                            log.Info("Se obtienen amortizaciones del contrato: " + contrato.id);
 
                             // inserta el calendario de pagos
                             foreach (Repayment amortizacion in amortizaciones)
@@ -319,6 +369,8 @@ namespace MambuWebHook.Controllers
                                 // inserta las Amortizaciones
                                 OperacionesBD.InsertarAmortizaciones(pago);
 
+                                log.Info("Se insertan amortizaciones en: " + pago.idContrato);
+
                                 pago = null;
 
                                 numeroPago += 1;
@@ -334,6 +386,9 @@ namespace MambuWebHook.Controllers
                             parametros.Add("idContrato", contrato.id);
 
                             OperacionesBD.ActualizarContrato(parametros);
+
+                            log.Info("Se actualiza el contrato: " + contrato.id);
+
                         }
 
                         movimiento = null;
