@@ -416,6 +416,8 @@ namespace MambuWebHook.Controllers
 
             List<Transaccion> transaccions = Operaciones.ObtenerTransacciones(idContrato);
 
+            log.Info("---------> Se obtienen las transacciones " + transaccions.Count().ToString());
+
             var contratosAgrupados = (from x in transaccions
                                       group x by new
                                       {
@@ -431,11 +433,17 @@ namespace MambuWebHook.Controllers
 
                 Loan contrato = Operaciones.ObtenerCuentaPrestamo(valor.idContrato);
 
+                log.Info("-----------> Se obtiene el contrato: " + valor.idContrato.ToString());
+
                 OperacionesBD.BorrarMovimientosContratos(contrato.id);
+
+                log.Info("-------> Se borran los contratos de: " + contrato.id.ToString());
 
                 // obtiene nuevamente las transacciones del contrato
                 List<Transaccion> transaccionesNuevas = Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_DISBURSMENT, valor.idContrato).ToList();
                 transaccionesNuevas.AddRange(Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_REPAYMENT, valor.idContrato).ToList());
+
+                log.Info("----------> Se obtienen las nuevas transacciones: " + transaccionesNuevas.Count().ToString());
 
                 foreach (Transaccion transaccion in transaccionesNuevas)
                 {
@@ -453,12 +461,19 @@ namespace MambuWebHook.Controllers
 
                     OperacionesBD.InsertarMovimiento(movimiento);
 
+                    log.Info("----------> Se inserta movimiento : " + movimiento.codigo);
+
                     movimiento = null;
                 }
 
                 // amortizaciones del contrato
                 OperacionesBD.BorrarAmortizacionesContrato(contrato.id);
+
+                log.Info("-------> Se borran las amortizaciones de: " + contrato.id.ToString());
+
                 List<Repayment> amortizaciones = Operaciones.ObtenerAmortizaciones(contrato.id).OrderBy(x => x.dueDate).ToList();
+
+                log.Info("----------> Se obtienen las nuevas amortizaciones: " + amortizaciones.Count().ToString());
 
                 // inserta el calendario de pagos
                 foreach (Repayment amortizacion in amortizaciones)
@@ -479,6 +494,8 @@ namespace MambuWebHook.Controllers
                     // inserta las Amortizaciones
                     OperacionesBD.InsertarAmortizaciones(pago);
 
+                    log.Info("----------> Se inserta amortizacion en contrato : " + pago.idContrato);
+
                     numeroPago += 1;
                 }
 
@@ -492,6 +509,8 @@ namespace MambuWebHook.Controllers
                 parametros.Add("idContrato", contrato.id);
 
                 OperacionesBD.ActualizarContrato(parametros);
+
+                log.Info("Se actualizo contrato : " + contrato.id);
 
                 contador += 1;
             }
