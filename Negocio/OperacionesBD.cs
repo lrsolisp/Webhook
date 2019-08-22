@@ -34,7 +34,18 @@ namespace Negocio
 
         public static long InsertarCliente(Cliente cliente)
         {
-            return operacionesBD.InsertarCliente(cliente);
+            operacionesBD.BeginTransaction();
+
+            try
+            {
+                operacionesBD.Commit();
+                return operacionesBD.InsertarCliente(cliente);
+            }
+            catch(Exception e)
+            {
+                operacionesBD.RollBack();
+                return 0;
+            }            
         }
 
         public static long InsertarContrato(Contrato contratoInsertar)
@@ -70,6 +81,16 @@ namespace Negocio
         public static void BorrarMovimientosContratos(string id)
         {
             operacionesBD.BorrarMovimientosContrato(id);
+        }
+
+        public static void BorrarCliente(string idCliente)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Cliente ObtenerClienteContrato(string idContrato)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -20,10 +20,11 @@ namespace MambuWebHook.Controllers
 
         [BasicAuthentication]
         public ActionResult Create()
-        {            
-            System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);            
+        {
+            System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
-            System.IO.File.AppendAllText(pathFile, rawSendGridJSON);
+
+            log.Info("----------- Obteniendo informacion desde WebHook --------");
 
             return new HttpStatusCodeResult(200);
         }
@@ -427,7 +428,7 @@ namespace MambuWebHook.Controllers
                                       {
                                           idContrato = campos.Key.parentAccountKey
                                       });
-            foreach(var valor in contratosAgrupados)
+            foreach (var valor in contratosAgrupados)
             {
                 int numeroPago = 1;
 
@@ -514,6 +515,58 @@ namespace MambuWebHook.Controllers
 
                 contador += 1;
             }
+            return new HttpStatusCodeResult(200);
+        }
+
+
+        /// <summary>
+        /// Se usa el método una vez que el estatus de la cuenta sea cerrada
+        /// y el subestado de la cuenta sea igual a retirado
+        /// </summary>
+        /// <param name="idContrato"></param>
+        /// <returns></returns>
+        [BasicAuthentication]
+        public ActionResult RetirarContrato(string idContrato)
+        {
+
+            List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(idContrato);
+
+            //Obtener movimientos de mambu con el idContrato
+            List <Transaccion> transaccions = Operaciones.ObtenerTransacciones(idContrato);
+
+
+            log.Info("---------> Se obtienen las transacciones " + transaccions.Count().ToString());
+
+            var contratosAgrupados = (from x in transaccions
+                                      group x by new
+                                      {
+                                          x.parentAccountKey
+                                      } into campos
+                                      select new
+                                      {
+                                          idContrato = campos.Key.parentAccountKey
+                                      });
+
+            // Borrar los movimientos obtenidos de mambu en la BD Devengados
+
+            foreach (var transaccion in transaccions)
+            {                
+
+                
+                OperacionesBD.BorrarMovimientosContratos(transaccion.transactionId.ToString());
+            }
+
+
+            //TODO: Obtener amortizaciones de mambu con el idContrato
+            //Borrar las amortizaciones obtenidas de mambu en la BD Devengados
+
+            OperacionesBD.BorrarAmortizacionesContrato(idContrato);
+
+            //TODO: Obtener cliente asociado al contrato
+            Cliente cliente = OperacionesBD.ObtenerClienteContrato(idContrato);
+            //TODO:Borrar el cliente
+            //OperacionesBD.BorrarCliente(idCliente);
+            //TODO: Borrar el contrato
             return new HttpStatusCodeResult(200);
         }
     }
