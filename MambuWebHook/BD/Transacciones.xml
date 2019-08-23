@@ -230,7 +230,16 @@
       DELETE FROM amortizaciones
       WHERE idContrato = #value#
     </delete>
+    
+    <delete id="EliminarCliente" parameterClass="System.String">
+      DELETE FROM clientes
+      WHERE idCliente = #value#
+    </delete>
 
+    <delete id="EliminarContrato" parameterClass="System.String">
+      DELETE FROM contratos
+      WHERE idContrato = #value#
+    </delete>
 
     <update id="ActualizarContrato" parameterClass="System.Collections.IDictionary">
       UPDATE contratos

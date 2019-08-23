@@ -14,8 +14,7 @@ using System.Web.Script.Serialization;
 namespace MambuWebHook.Controllers
 {
     public class MambuController : Controller
-    {
-        private string pathFile = WebConfigurationManager.AppSettings["FileLogPath"];
+    {        
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         [BasicAuthentication]
@@ -29,6 +28,12 @@ namespace MambuWebHook.Controllers
             return new HttpStatusCodeResult(200);
         }
 
+        /// <summary>
+        /// Método para obtener la información
+        /// faltante e insertar el nuevo contrato, credito
+        /// amortizaciones y movimientos
+        /// </summary>
+        /// <returns></returns>
         [BasicAuthentication]
         public ActionResult NuevoContrato()
         {
@@ -287,6 +292,11 @@ namespace MambuWebHook.Controllers
             return new HttpStatusCodeResult(200);
         }
 
+        /// <summary>
+        /// Método para obtener pagos de mambu
+        /// y aplicarlos en devengados
+        /// </summary>
+        /// <returns></returns>
         [BasicAuthentication]
         public ActionResult AplicarPagos()
         {
@@ -409,6 +419,12 @@ namespace MambuWebHook.Controllers
             }
         }
 
+        /// <summary>
+        /// Método para obtener los pagos de mambu
+        /// y se cancelan en devengados
+        /// </summary>
+        /// <param name="idContrato"></param>
+        /// <returns></returns>
         [BasicAuthentication]
         [HttpPost]
         public ActionResult CancelarPagos(string idContrato)
@@ -529,44 +545,21 @@ namespace MambuWebHook.Controllers
         public ActionResult RetirarContrato(string idContrato)
         {
 
-            List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(idContrato);
-
-            //Obtener movimientos de mambu con el idContrato
-            List <Transaccion> transaccions = Operaciones.ObtenerTransacciones(idContrato);
-
-
-            log.Info("---------> Se obtienen las transacciones " + transaccions.Count().ToString());
-
-            var contratosAgrupados = (from x in transaccions
-                                      group x by new
-                                      {
-                                          x.parentAccountKey
-                                      } into campos
-                                      select new
-                                      {
-                                          idContrato = campos.Key.parentAccountKey
-                                      });
-
             // Borrar los movimientos obtenidos de mambu en la BD Devengados
-
-            foreach (var transaccion in transaccions)
-            {                
-
-                
-                OperacionesBD.BorrarMovimientosContratos(transaccion.transactionId.ToString());
-            }
-
-
-            //TODO: Obtener amortizaciones de mambu con el idContrato
+            OperacionesBD.BorrarMovimientosContratos(idContrato);
+            
             //Borrar las amortizaciones obtenidas de mambu en la BD Devengados
-
             OperacionesBD.BorrarAmortizacionesContrato(idContrato);
 
-            //TODO: Obtener cliente asociado al contrato
-            Cliente cliente = OperacionesBD.ObtenerClienteContrato(idContrato);
-            //TODO:Borrar el cliente
-            //OperacionesBD.BorrarCliente(idCliente);
-            //TODO: Borrar el contrato
+            //Obtener cliente asociado al contrato
+            string idCliente = OperacionesBD.ObtenerClienteContrato(idContrato);
+            
+            //Borrar el cliente
+            OperacionesBD.BorrarCliente(idCliente);
+            
+            //Borrar el contrato
+            OperacionesBD.BorrarContrato(idContrato);
+
             return new HttpStatusCodeResult(200);
         }
     }

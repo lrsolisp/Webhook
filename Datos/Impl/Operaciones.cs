@@ -100,6 +100,11 @@ namespace Datos.Impl
             return mapper.QueryForObject<string>("ExisteCliente", parametros);
         }
 
+        public void BorrarCliente(string idCliente)
+        {
+            Object objeto = mapper.Delete("EliminarCliente", idCliente);
+        }
+
         public long InsertarMovimiento(Movimiento movimiento)
         {
             long insertado = -1;
@@ -113,6 +118,16 @@ namespace Datos.Impl
             }
 
             return insertado;
+        }
+
+        public void BorrarContrato(string idContrato)
+        {
+            Object objeto = mapper.Delete("EliminarContrato", idContrato);
+        }
+
+        public string ObtenerCliente(string idContrato)
+        {
+            return mapper.QueryForObject<System.String>("ObtenerCliente", idContrato);
         }
 
         public long InsertarAmortizacion(Pago pago)

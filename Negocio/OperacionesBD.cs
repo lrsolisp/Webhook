@@ -23,39 +23,88 @@ namespace Negocio
         }
 
         public static long InsertarCredito(Credito credito)
-        {
-            return operacionesBD.InsertarCredito(credito);
+        {            
+            long response = 0;
+            try
+            {
+                operacionesBD.BeginTransaction();
+                response = operacionesBD.InsertarCredito(credito);
+                operacionesBD.Commit();
+                return response;
+            }
+            catch (Exception e)
+            {
+                operacionesBD.RollBack();
+                return response;
+            }
         }
 
         public static long InsertarAmortizaciones(Pago pago)
         {
-            return operacionesBD.InsertarAmortizacion(pago);
+            long response = 0;
+            try
+            {
+                operacionesBD.BeginTransaction();
+                response = operacionesBD.InsertarAmortizacion(pago);
+                operacionesBD.Commit();
+                return response;
+            }
+            catch (Exception e)
+            {
+                operacionesBD.RollBack();
+                return response;
+            }
         }
 
         public static long InsertarCliente(Cliente cliente)
         {
-            operacionesBD.BeginTransaction();
-
+            long response = 0;
             try
             {
+                operacionesBD.BeginTransaction();
+                response = operacionesBD.InsertarCliente(cliente);
                 operacionesBD.Commit();
-                return operacionesBD.InsertarCliente(cliente);
+                return response;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 operacionesBD.RollBack();
-                return 0;
-            }            
+                return response;
+            }
         }
 
         public static long InsertarContrato(Contrato contratoInsertar)
         {
-            return operacionesBD.InsertarContrato(contratoInsertar);
+            long response = 0;
+            try
+            {
+                operacionesBD.BeginTransaction();
+                response = operacionesBD.InsertarContrato(contratoInsertar);
+                operacionesBD.Commit();
+                return response;
+            }
+            catch (Exception e)
+            {
+                operacionesBD.RollBack();
+                return response;
+            }
         }
 
         public static long InsertarMovimiento(Movimiento movimiento)
         {
-            return operacionesBD.InsertarMovimiento(movimiento);
+            long response = 0;
+            try
+            {
+                operacionesBD.BeginTransaction();
+                response = operacionesBD.InsertarMovimiento(movimiento);
+                operacionesBD.Commit();
+                return response;
+            }
+            catch (Exception e)
+            {
+                operacionesBD.RollBack();
+                return response;
+            }
         }
 
         public static string ExisteCliente(Dictionary<string, object> parametros)
@@ -70,7 +119,16 @@ namespace Negocio
 
         public static void BorrarAmortizacionesContrato(string idContrato)
         {
-            operacionesBD.BorrarAmortizacionesContrato(idContrato);
+            try
+            {
+                operacionesBD.BeginTransaction();
+                operacionesBD.BorrarAmortizacionesContrato(idContrato);
+                operacionesBD.Commit();
+            }
+            catch
+            {
+                operacionesBD.RollBack();
+            }
         }
 
         public static void ActualizarContrato(Dictionary<string, object> parametros)
@@ -80,17 +138,40 @@ namespace Negocio
 
         public static void BorrarMovimientosContratos(string id)
         {
-            operacionesBD.BorrarMovimientosContrato(id);
+            try
+            {
+                operacionesBD.BeginTransaction();
+                operacionesBD.BorrarMovimientosContrato(id);
+                operacionesBD.Commit();
+            }
+            catch
+            {
+                operacionesBD.RollBack();
+            }
         }
 
         public static void BorrarCliente(string idCliente)
         {
-            throw new NotImplementedException();
+            try
+            {
+                operacionesBD.BeginTransaction();
+                operacionesBD.BorrarCliente(idCliente);
+                operacionesBD.Commit();
+            }
+            catch
+            {
+                operacionesBD.RollBack();
+            }
         }
 
-        public static Cliente ObtenerClienteContrato(string idContrato)
+        public static string ObtenerClienteContrato(string idContrato)
         {
-            throw new NotImplementedException();
+            return operacionesBD.ObtenerCliente(idContrato);
+        }
+
+        public static void BorrarContrato(string idContrato)
+        {
+            operacionesBD.BorrarContrato(idContrato);
         }
     }
 }

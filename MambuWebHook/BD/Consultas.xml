@@ -11,6 +11,13 @@
       FROM creditosDatos
     </select>
 
+    <select id="ObtenerCliente" parameterClass ="System.Collections.IDictionary" resultClass="System.String" >
+      SELECT
+      idCliente
+      FROM contratos
+      WHERE idContrato = #idContrato#
+    </select>
+
 
     <select id="ExisteCredito" parameterClass="System.Collections.IDictionary" resultClass="System.String">
       IF EXISTS
