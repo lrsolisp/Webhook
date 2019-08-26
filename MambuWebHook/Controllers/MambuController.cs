@@ -195,6 +195,16 @@ namespace MambuWebHook.Controllers
                             contratoInsertar.estatus = loan.accountState;
                             contratoInsertar.subEstatus = loan.accountSubState;
                             contratoInsertar.beneficiario = contratoWebHook.Beneficiario;
+                            contratoInsertar.pda = contratoWebHook.PDA;
+                            contratoInsertar.sector = contratoWebHook.Sector;
+                            contratoInsertar.subSector = contratoWebHook.SubSector;
+                            contratoInsertar.propositoCredito = contratoWebHook.PropositoCredito;
+                            contratoInsertar.empleosCreados = contratoWebHook.EmpleadosCreadosTC.ToString();
+                            contratoInsertar.empleosSostenidos = contratoWebHook.EmpleadosSostenidosTC.ToString();
+                            contratoInsertar.fuenteFondeo = contratoWebHook.FuenteFondeo;
+                            contratoInsertar.valorBien = contratoWebHook.ValorBien;
+                            contratoInsertar.formaDesembolso = contratoWebHook.FormaDesembolso;
+                            contratoInsertar.nombreOficialCredito = contratoWebHook.NombreOficialCredito;
 
                             //Validamos que no exista el crédito
                             if (existe.Equals("0"))

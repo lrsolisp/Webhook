@@ -100,6 +100,12 @@ namespace Entidades
 
         public string estado { get; set; }        
 
-        public string numeroTelefonico { get; set; }                               
+        public string numeroTelefonico { get; set; }
+
+        public string scoreCredito { get; set; }
+
+        public string cicloCliente { get; set; }
+
+        public string tipoAsentamiento { get; set; }
     }
 }

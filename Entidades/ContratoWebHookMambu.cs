@@ -9,73 +9,76 @@ namespace Entidades
 {
     public class ContratoWebHookMambu
     {
-        [DataMember (Name = "idContrato")]
+        [DataMember(Name = "idContrato")]
         public string IdContrato { get; set; }
 
-        [DataMember (Name = "idCredito")]
+        [DataMember(Name = "idCredito")]
         public string IdCredito { get; set; }
 
-        [DataMember (Name = "nombreSucursal")]
+        [DataMember(Name = "nombreSucursal")]
         public string NombreSucursal { get; set; }
 
-        [DataMember (Name = "nombreDelProducto")]
+        [DataMember(Name = "nombreDelProducto")]
         public string NombreDelProducto { get; set; }
 
-        [DataMember (Name = "metodologia")]
+        [DataMember(Name = "metodologia")]
         public string Metodologia { get; set; }
 
-        [DataMember (Name = "tasaInteres")]
+        [DataMember(Name = "tasaInteres")]
         public double TasaInteres { get; set; }
 
-        [DataMember (Name = "montoPrestamo")]
+        [DataMember(Name = "montoPrestamo")]
         public double MontoPrestamo { get; set; }
 
-        [DataMember (Name = "estatus")]
+        [DataMember(Name = "estatus")]
         public string Estatus { get; set; }
 
-        [DataMember (Name = "ingresosMensuales")]
+        [DataMember(Name = "ingresosMensuales")]
         public double IngresosMensuales { get; set; }
 
-        [DataMember (Name = "gastosMensuales")]
+        [DataMember(Name = "gastosMensuales")]
         public double GastosMensuales { get; set; }
 
-        [DataMember (Name = "utilidad")]
+        [DataMember(Name = "utilidad")]
         public string Utilidad { get; set; }
 
-        [DataMember (Name = "firmaElectronica")]
+        [DataMember(Name = "firmaElectronica")]
         public string FirmaElectronica { get; set; }
 
-        [DataMember (Name = "experienciaAnios")]
+        [DataMember(Name = "experienciaAnios")]
         public int ExperienciaAnios { get; set; }
 
-        [DataMember (Name = "sector")]
+        [DataMember(Name = "sector")]
         public string Sector { get; set; }
 
-        [DataMember (Name = "actividadEconomica")]
+        [DataMember(Name = "subSector")]
+        public string SubSector { get; set; }
+
+        [DataMember(Name = "actividadEconomica")]
         public string ActividadEconomica { get; set; }
 
-        [DataMember (Name = "objectivoDelCredito")]
+        [DataMember(Name = "objectivoDelCredito")]
         public string ObjectivoDelCredito { get; set; }
 
-        [DataMember (Name = "empleadosCreadosMT")]
+        [DataMember(Name = "empleadosCreadosMT")]
         public int EmpleadosCreadosMT { get; set; }
 
-        [DataMember (Name = "empleadosCreadosTC")]
+        [DataMember(Name = "empleadosCreadosTC")]
         public int EmpleadosCreadosTC { get; set; }
 
-        [DataMember (Name = "empleadosSostenidosMT")]
+        [DataMember(Name = "empleadosSostenidosMT")]
         public int EmpleadosSostenidosMT { get; set; }
 
-        [DataMember (Name = "empleadosSostenidosTC")]
+        [DataMember(Name = "empleadosSostenidosTC")]
         public int EmpleadosSostenidosTC { get; set; }
 
-        [DataMember (Name = "numeroDeNinosEmpleados")]
-        public int NumeroDeNinosEmpleados { get; set; }        
+        [DataMember(Name = "numeroDeNinosEmpleados")]
+        public int NumeroDeNinosEmpleados { get; set; }
 
-        [DataMember (Name = "PDA")]
+        [DataMember(Name = "PDA")]
         public string PDA { get; set; }
 
-        [DataMember (Name ="numeroIdentificacion")]
+        [DataMember(Name = "numeroIdentificacion")]
         public string NumeroIdentificacion { get; set; }
 
         [DataMember(Name = "numeroDeNinos")]
@@ -84,7 +87,22 @@ namespace Entidades
         [DataMember(Name = "beneficiario")]
         public string Beneficiario { get; set; }
 
-        [DataMember (Name ="cliente")]
+        [DataMember(Name = "cliente")]
         public Cliente Cliente { get; set; }
+
+        [DataMember(Name = "propositoCredito")]
+        public string PropositoCredito { get; set; }
+
+        [DataMember(Name = "fuenteFondeo")]
+        public string FuenteFondeo { get; set; }
+
+        [DataMember(Name = "valorBien")]
+        public string ValorBien { get; set; }
+
+        [DataMember(Name = "formaDesembolso")]
+        public string FormaDesembolso { get; set; }
+
+        [DataMember(Name = "nombreOficialCredito")]
+        public string NombreOficialCredito { get; set; }
     }
 }
