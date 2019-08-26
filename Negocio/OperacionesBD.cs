@@ -133,7 +133,16 @@ namespace Negocio
 
         public static void ActualizarContrato(Dictionary<string, object> parametros)
         {
-            operacionesBD.ActualizarContrato(parametros);
+            try
+            {
+                operacionesBD.BeginTransaction();
+                operacionesBD.ActualizarContrato(parametros);
+                operacionesBD.Commit();
+            }
+            catch
+            {
+                operacionesBD.RollBack();
+            }
         }
 
         public static void BorrarMovimientosContratos(string id)
@@ -171,7 +180,16 @@ namespace Negocio
 
         public static void BorrarContrato(string idContrato)
         {
-            operacionesBD.BorrarContrato(idContrato);
+            try
+            {
+                operacionesBD.BeginTransaction();
+                operacionesBD.BorrarContrato(idContrato);
+                operacionesBD.Commit();
+            }
+            catch
+            {
+                operacionesBD.RollBack();
+            }
         }
     }
 }
