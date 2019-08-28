@@ -6,15 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Web;
-using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
 namespace MambuWebHook.Controllers
 {
     public class MambuController : Controller
-    {        
+    {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         [BasicAuthentication]
@@ -557,16 +555,16 @@ namespace MambuWebHook.Controllers
 
             // Borrar los movimientos obtenidos de mambu en la BD Devengados
             OperacionesBD.BorrarMovimientosContratos(idContrato);
-            
+
             //Borrar las amortizaciones obtenidas de mambu en la BD Devengados
             OperacionesBD.BorrarAmortizacionesContrato(idContrato);
 
             //Obtener cliente asociado al contrato
             string idCliente = OperacionesBD.ObtenerClienteContrato(idContrato);
-            
+
             //Borrar el cliente
             OperacionesBD.BorrarCliente(idCliente);
-            
+
             //Borrar el contrato
             OperacionesBD.BorrarContrato(idContrato);
 

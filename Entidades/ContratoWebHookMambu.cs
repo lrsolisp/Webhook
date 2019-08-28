@@ -34,10 +34,10 @@ namespace Entidades
         public string Estatus { get; set; }
 
         [DataMember(Name = "ingresosMensuales")]
-        public double IngresosMensuales { get; set; }
+        public string IngresosMensuales { get; set; }
 
         [DataMember(Name = "gastosMensuales")]
-        public double GastosMensuales { get; set; }
+        public string GastosMensuales { get; set; }
 
         [DataMember(Name = "utilidad")]
         public string Utilidad { get; set; }
@@ -46,7 +46,7 @@ namespace Entidades
         public string FirmaElectronica { get; set; }
 
         [DataMember(Name = "experienciaAnios")]
-        public int ExperienciaAnios { get; set; }
+        public string ExperienciaAnios { get; set; }
 
         [DataMember(Name = "sector")]
         public string Sector { get; set; }
@@ -61,19 +61,19 @@ namespace Entidades
         public string ObjectivoDelCredito { get; set; }
 
         [DataMember(Name = "empleadosCreadosMT")]
-        public int EmpleadosCreadosMT { get; set; }
+        public string EmpleadosCreadosMT { get; set; }
 
         [DataMember(Name = "empleadosCreadosTC")]
-        public int EmpleadosCreadosTC { get; set; }
+        public string EmpleadosCreadosTC { get; set; }
 
         [DataMember(Name = "empleadosSostenidosMT")]
-        public int EmpleadosSostenidosMT { get; set; }
+        public string EmpleadosSostenidosMT { get; set; }
 
         [DataMember(Name = "empleadosSostenidosTC")]
-        public int EmpleadosSostenidosTC { get; set; }
+        public string EmpleadosSostenidosTC { get; set; }
 
         [DataMember(Name = "numeroDeNinosEmpleados")]
-        public int NumeroDeNinosEmpleados { get; set; }
+        public string NumeroDeNinosEmpleados { get; set; }
 
         [DataMember(Name = "PDA")]
         public string PDA { get; set; }
@@ -82,7 +82,7 @@ namespace Entidades
         public string NumeroIdentificacion { get; set; }
 
         [DataMember(Name = "numeroDeNinos")]
-        public int NumeroDeNinos { get; set; }
+        public string NumeroDeNinos { get; set; }
 
         [DataMember(Name = "beneficiario")]
         public string Beneficiario { get; set; }

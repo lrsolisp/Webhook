@@ -10,10 +10,6 @@ namespace Entidades
     public class Cliente
     {
         public string idCliente { get; set; }
-        public string nombre { get; set; }
-        public string apellidoPaterno { get; set; }
-        public string apellidoMaterno { get; set; }
-        public string fechaNacimiento { get; set; }
 
         [DataMember(Name = "rfc")]
         public string RFC { get; set; }
@@ -21,11 +17,16 @@ namespace Entidades
         [DataMember(Name = "curp")]
         public string CURP { get; set; }
 
+        public string nacionalidad { get; set; }
+
         [DataMember(Name = "cp")]
         public string CP { get; set; }
 
         [DataMember(Name = "tipoDeZona")]
         public string TipoDeZona { get; set; }
+
+        [DataMember(Name = "estadoCliente")]
+        public string estado { get; set; }
 
         [DataMember(Name = "municipio")]
         public string municipio { get; set; }
@@ -36,10 +37,8 @@ namespace Entidades
         [DataMember(Name = "tipoLocalidad")]
         public string TipoLocalidad { get; set; }
 
-        public string nacionalidad { get; set; }
-
         [DataMember(Name = "numeroNinosPatrocinados")]
-        public int NumeroNinosPatrocinados { get; set; }
+        public string NumeroNinosPatrocinados { get; set; }
 
         [DataMember(Name = "rolEnElHogar")]
         public string RolEnElHogar { get; set; }
@@ -84,12 +83,23 @@ namespace Entidades
         public string HablaDialecto { get; set; }
 
         [DataMember(Name = "numeroFamiliaProspera")]
-        public int NumeroFamiliaProspera { get; set; }
+        public string NumeroFamiliaProspera { get; set; }
+
+        public string scoreCredito { get; set; }
+
+        public string cicloCliente { get; set; }
+
+        public string tipoAsentamiento { get; set; }
+
+        public string nombre { get; set; }
+        public string apellidoPaterno { get; set; }
+        public string apellidoMaterno { get; set; }
+        public string fechaNacimiento { get; set; }
 
         public string sexo { get; set; }
 
         public string numeroDependientes { get; set; }
-        
+
         public string direccion { get; set; }
 
         public string coloniaPoblacion { get; set; }
@@ -98,14 +108,7 @@ namespace Entidades
 
         public string ciudad { get; set; }
 
-        public string estado { get; set; }        
-
         public string numeroTelefonico { get; set; }
 
-        public string scoreCredito { get; set; }
-
-        public string cicloCliente { get; set; }
-
-        public string tipoAsentamiento { get; set; }
     }
 }
