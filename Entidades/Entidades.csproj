@@ -79,6 +79,7 @@
     <Compile Include="Repayment.cs" />
     <Compile Include="Sucursal.cs" />
     <Compile Include="Transaccion.cs" />
+    <Compile Include="Usuario.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

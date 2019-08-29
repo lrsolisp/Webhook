@@ -228,6 +228,12 @@ namespace Entidades
             set;
         }
 
+        public DateTime closeDate
+        {
+            get;
+            set;
+        }
+
         public DateTime expectedDisbursementDate
         {
             get;

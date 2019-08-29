@@ -74,8 +74,7 @@ namespace Negocio
                 using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var objText = streamReader.ReadToEnd();
-                    contratos = js.Deserialize<List<Loan>>(objText);
-
+                    contratos = js.Deserialize<List<Loan>>(objText);                    
                     if (contratos.Count <= 0)
                     {
                         acaba = true;
@@ -125,6 +124,35 @@ namespace Negocio
             return objeto;
         }
 
+        public static Entidades.Cliente ObtenerDatosClienteActualiza(string id)
+        {
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
+
+            Entidades.Cliente objeto = new Entidades.Cliente();
+            Dictionary<string, string> datos = new Dictionary<string, string>();
+
+
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + Negocio.Globales.Constantes.API_MAMBU_CLIENT + "/" + id + "?fulldetails=true");
+
+            req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
+            req.Method = Negocio.Globales.Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var objText = streamReader.ReadToEnd();
+                objeto = js.Deserialize<Entidades.Cliente>(objText);
+            }
+
+            return objeto;
+        }
+
         public static Dictionary<string, string> ObtenerDatosCliente(string id)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
@@ -133,7 +161,7 @@ namespace Negocio
             Dictionary<string, string> datos = new Dictionary<string, string>();
 
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_CLIENT + "/" + id + "?fulldetails=true");
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + Constantes.API_MAMBU_CLIENT + "/" + id + "?fulldetails=true");
 
             req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
             req.Method = Constantes.METODO_GET;
@@ -199,7 +227,7 @@ namespace Negocio
             Dictionary<string, string> datos = new Dictionary<string, string>();
 
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_CLIENT + "/" + id + "?fulldetails=true");
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + Constantes.API_MAMBU_CLIENT + "/" + id + "?fulldetails=true");
 
             req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0";
             req.Method = Constantes.METODO_GET;
@@ -275,7 +303,7 @@ namespace Negocio
             Dictionary<string, string> datos = new Dictionary<string, string>();
 
 
-            WebRequest req = WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_PRODUCT + "/" + id + "?fulldetails=true");
+            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + Constantes.API_MAMBU_PRODUCT + "/" + id + "?fulldetails=true");
             req.ContentType = "application/json; charset=utf-8";
             req.Method = Negocio.Globales.Constantes.METODO_GET;
             req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
@@ -410,7 +438,7 @@ namespace Negocio
             string json = JsonConvert.SerializeObject(filtros);
 
 
-            WebRequest req = WebRequest.Create("https://visionfundmexico.mambu.com/api/" + Constantes.API_MAMBU_LOAN + "/" + Constantes.API_MAMBU_SEARCH + "?" + Constantes.LIMITE_CONSULTA);
+            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + Constantes.API_MAMBU_LOAN + "/" + Constantes.API_MAMBU_SEARCH + "?" + Constantes.LIMITE_CONSULTA);
 
             req.ContentType = "application/json; charset=utf-8";
             req.Method = Constantes.METODO_POST;
@@ -476,6 +504,46 @@ namespace Negocio
 
             return amortizaciones;
         }
+        /// <summary>
+        /// Método para obtener un campo personalizado
+        /// </summary>
+        /// <param name="keyCampoPersonalizado"></param>
+        /// <returns></returns>
+        public static Usuario ObtenerUsuarioMambu(string keyEncodedUser)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            string valorResultado = string.Empty;
+
+            string tipoDato = string.Empty;
+
+            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/users/" + keyEncodedUser);
+
+            req.Method = Constantes.METODO_GET;
+            req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;  
+
+            var httpResponse = (HttpWebResponse)req.GetResponse();
+
+            Usuario userMambu = new Usuario();
+
+            try
+            {
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    userMambu = JsonConvert.DeserializeObject<Usuario>(objText);
+                }
+            }
+            catch (Exception exception)
+            {
+
+            }
+
+            return userMambu;
+        }
 
 
         /// <summary>
@@ -485,7 +553,7 @@ namespace Negocio
         /// <param name="keyCampoPersonalizado"></param>
         /// <param name="tipoDato"></param>
         /// <returns></returns>
-        public static string ObtenerCampoPersonalizadoContrato(string idContrato, string keyCampoPersonalizado, string tipoDato)
+        public static List<CustomFieldValue> ObtenerCampoPersonalizadoContrato(string idContrato, string keyCampoPersonalizado, string tipoDato)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
@@ -509,19 +577,7 @@ namespace Negocio
                 {
                     var objText = streamReader.ReadToEnd();
 
-                    campoPersonalizado = JsonConvert.DeserializeObject<List<CustomFieldValue>>(objText);
-
-                    if (campoPersonalizado != null)
-                    {
-                        if (tipoDato.Equals(Constantes.OBJETO_USUARIO))
-                        {
-                            valorResultado = campoPersonalizado[0].linkedEntityKeyValue;
-                        }
-                        else
-                        {
-                            valorResultado = campoPersonalizado[0].value;
-                        }
-                    }
+                    campoPersonalizado = JsonConvert.DeserializeObject<List<CustomFieldValue>>(objText);                    
                 }
             }
             catch (Exception exception)
@@ -529,7 +585,7 @@ namespace Negocio
 
             }
 
-            return valorResultado;
+            return campoPersonalizado;
         }
 
         public static List<Transaccion> ObtenerTransacciones(string idContrato)
@@ -616,7 +672,7 @@ namespace Negocio
 
             while (!acaba)
             {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/"+"loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
 
                 req.Method = Constantes.METODO_POST;
                 req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
@@ -706,7 +762,7 @@ namespace Negocio
 
             while (!acaba)
             {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://visionfundmexico.mambu.com/api/loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/"+"loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
 
                 req.Method = Constantes.METODO_POST;
                 req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));

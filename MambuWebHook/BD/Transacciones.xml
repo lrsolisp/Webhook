@@ -73,7 +73,19 @@
       interesPagado,
       estatus,
       subEstatus,
-      beneficiario
+      beneficiario,
+      pda,
+      sector,
+      subSector,
+      propositoCredito,
+      empleosCreados,
+      empleosSostenidos,
+      fuenteFondeo,
+      valorBien,
+      formaDesembolso,
+      numeroOficialCredito,
+      nombreOficialCredito,
+      fechaCierre
       )
       VALUES
       (
@@ -87,7 +99,19 @@
       #interesPagado#,
       #estatus#,
       #subEstatus#,
-      #beneficiario#
+      #beneficiario#,
+      #pda#,
+      #sector#,
+      #subSector#,
+      #propositoCredito#,
+      #empleosCreados#,
+      #empleosSostenidos#,
+      #fuenteFondeo#,
+      #valorBien#,
+      #formaDesembolso#,
+      #numeroOficialCredito#,
+      #nombreOficialCredito#,
+      #fechaCierre#
       )
 
       <selectKey property="idCredito" resultClass="long" type="post" >
@@ -100,42 +124,60 @@
       INSERT INTO clientes
       (
       idCliente,
-      nombre,
       apellidoPaterno,
       apellidoMaterno,
+      nombre,
       fechaNacimiento,
       RFC,
       CURP,
-      CP,
       nacionalidad,
       sexo,
-      numeroDependientes,
-      direccion,
-      coloniaPoblacion,
-      delegacionMunicipio,
       ciudad,
       estado,
-      numeroTelefonico
+      coloniaPoblacion,
+      delegacionMunicipio,
+      Calle,
+      numInt,
+      numExt,
+      CP,
+      numeroTelefonico,
+      numeroDependientes,
+      ninosPatrocinados,
+      estadoCivil,
+      escolaridad,
+      numeroCelular,
+      scoreCredito,
+      cicloCliente,
+      tipoAsentamiento
       )
       VALUES
       (
       #idCliente#,
-      #nombre#,
       #apellidoPaterno#,
       #apellidoMaterno#,
+      #nombre#,
       #fechaNacimiento#,
       #RFC#,
       #CURP#,
-      #CP#,
       #nacionalidad#,
       #sexo#,
-      #NumeroNinosPatrocinados#,
-      #direccion#,
-      #coloniaPoblacion#,
-      #municipio#,
       #ciudad#,
       #estado#,
-      #numeroTelefonico#
+      #coloniaPoblacion#,
+      #delegacionMunicipio#,
+      #NombreLocalidad#,
+      #numInt#,
+      #numExt#,
+      #CP#,
+      #numeroTelefonico#,
+      #numeroDependientes#,
+      #NumeroNinosPatrocinados#,
+      #EstadoCivil#,
+      #Escolaridad#,
+      #numeroCelular#,
+      #scoreCredito#,
+      #cicloCliente#,
+      #tipoAsentamiento#
       )
 
       <selectKey property="idCliente" resultClass="long" type="post" >
@@ -230,7 +272,7 @@
       DELETE FROM amortizaciones
       WHERE idContrato = #value#
     </delete>
-    
+
     <delete id="EliminarCliente" parameterClass="System.String">
       DELETE FROM clientes
       WHERE idCliente = #value#

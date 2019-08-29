@@ -42,5 +42,7 @@ namespace Entidades
 
         public string nombreOficialCredito { get; set; }
 
+        public DateTime fechaCierre { get; set; }
+
     }
 }
