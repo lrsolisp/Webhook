@@ -2,6 +2,7 @@
 using MambuWebHook.Filters;
 using Negocio;
 using Negocio.Globales;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,7 +39,7 @@ namespace MambuWebHook.Controllers
             ContratoWebHookMambu contratoWebHook = new ContratoWebHookMambu();
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
-            log.Info("---------> Se obtiene el JSON " + rawSendGridJSON);
+            log.Info("---------> Se obtiene el JSON -----------");
             contratoWebHook = new JavaScriptSerializer().Deserialize<ContratoWebHookMambu>(rawSendGridJSON);
 
             if (contratoWebHook != null)
@@ -54,7 +55,7 @@ namespace MambuWebHook.Controllers
                 //Una vez que se valide que el contrato que esta por crearse no existe
                 //se procede a obtener informacion de mambu para posteriormente agregar
                 //la informacion concentrada en la BD de VFMéxico
-                if (existe.Equals("0"))
+                if (existe.Equals("1"))
                 {
                     //Obtenemos las transacciones del contrato
                     List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contratoWebHook.IdContrato);
@@ -68,8 +69,7 @@ namespace MambuWebHook.Controllers
                         Dictionary<string, string> datos = new Dictionary<string, string>();
 
                         foreach (var loan in loans)
-                        {
-                            var campos = loan.customFieldValues;
+                        {                            
                             log.Debug("Contrato Nuevo: " + contador.ToString() + " de " + loans.Count().ToString());
                             Debug.Print("Contrato Nuevo : " + contador.ToString() + " de " + loans.Count().ToString());
 
@@ -226,7 +226,7 @@ namespace MambuWebHook.Controllers
                             contratoInsertar.formaDesembolso = contratoWebHook.FormaDesembolso;
                             contratoInsertar.nombreOficialCredito = contratoWebHook.NombreOficialCredito;
                             contratoInsertar.numeroOficialCredito = userMambu.id;
-                            contratoInsertar.fechaCierre = Convert.ToDateTime(loan.closeDate.Year == 1 ? "01/01/1900" : loan.closeDate.ToString()); 
+                            contratoInsertar.fechaCierre = Convert.ToDateTime(loan.closeDate.Year == 1 ? "01/01/1900" : loan.closeDate.ToString());
 
                             //Validamos que no exista el crédito
                             if (existe.Equals("0"))
@@ -302,6 +302,45 @@ namespace MambuWebHook.Controllers
                                 OperacionesBD.InsertarMovimiento(movimiento);
 
                                 log.Info("Se inserto movimiento: " + movimiento.codigo);
+                            }
+
+                            List<AnidaFee> comitions = loan.disbursementDetails.fees;
+                            
+                            //Validacion para comision 
+                            foreach (var comition in comitions)
+                            {
+                                if (comition.fee.name.ToUpper().Contains("COMISIÓN") || comition.fee.name.ToUpper().Contains("COMISION"))
+                                {
+                                    Movimiento movimiento = new Movimiento();
+
+                                    movimiento.codigo = "COMISIÓN";
+                                    movimiento.fechaMovimiento =  Convert.ToDateTime(comition.fee.creationDate);
+                                    movimiento.fechaValor = Convert.ToDateTime(loan.disbursementDetails.disbursementDate);
+                                    movimiento.idContrato = loan.id;
+                                    movimiento.idTransaccion = -1;
+                                    movimiento.montoCapital = 0;
+                                    movimiento.montoInteres = 0;
+                                    movimiento.montoTotal = Convert.ToDecimal(comition.fee.amount);
+                                    movimiento.saldo = 0;
+
+                                    OperacionesBD.InsertarMovimiento(movimiento);
+                                }
+                                else if (comition.fee.name.ToUpper().Contains("GASTO"))
+                                {
+                                    Movimiento movimiento = new Movimiento();
+
+                                    movimiento.codigo = "SEGURO";
+                                    movimiento.fechaMovimiento = Convert.ToDateTime(comition.fee.creationDate);
+                                    movimiento.fechaValor = Convert.ToDateTime(loan.disbursementDetails.disbursementDate);
+                                    movimiento.idContrato = loan.id;
+                                    movimiento.idTransaccion = -1;
+                                    movimiento.montoCapital = 0;
+                                    movimiento.montoInteres = 0;
+                                    movimiento.montoTotal = Convert.ToDecimal(comition.fee.amount);
+                                    movimiento.saldo = 0;
+
+                                    OperacionesBD.InsertarMovimiento(movimiento);
+                                }                                
                             }
 
                             transacciones.Clear();
@@ -457,10 +496,19 @@ namespace MambuWebHook.Controllers
         /// </summary>
         /// <param name="idContrato"></param>
         /// <returns></returns>
-        [BasicAuthentication]
-        [HttpPost]
-        public ActionResult CancelarPagos(string idContrato)
+        [BasicAuthentication]        
+        public ActionResult CancelarPagos()
         {
+
+            System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
+            string rawSendGridJSON = reader.ReadToEnd();
+
+            //Convertimos a json el resultado para facilitar el acceso
+            //a sus propiedades
+            JObject json = JObject.Parse(rawSendGridJSON);
+
+            string idContrato = json.Properties().FirstOrDefault().Value.ToString();
+
             long contador = 0;
 
             List<Transaccion> transaccions = Operaciones.ObtenerTransacciones(idContrato);
@@ -573,11 +621,20 @@ namespace MambuWebHook.Controllers
         /// </summary>
         /// <param name="idContrato"></param>
         /// <returns></returns>
-        [BasicAuthentication]
-        [HttpPost]
-        public ActionResult RetirarContrato(string idContrato)
+        [BasicAuthentication]       
+        public ActionResult RetirarContrato()
         {
+          
+            System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
+            string rawSendGridJSON = reader.ReadToEnd();
 
+            //Convertimos a json el resultado para facilitar el acceso
+            //a sus propiedades
+            JObject json = JObject.Parse(rawSendGridJSON);
+
+            string idContrato = json.Properties().FirstOrDefault().Value.ToString();
+
+            log.Info("---------> Se obtienen las transacciones "+ idContrato);
             // Borrar los movimientos obtenidos de mambu en la BD Devengados
             OperacionesBD.BorrarMovimientosContratos(idContrato);
 

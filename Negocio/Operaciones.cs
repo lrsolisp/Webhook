@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,6 +16,9 @@ namespace Negocio
 {
     public class Operaciones
     {
+
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Método para obtener las cuentas de prestamo (Contratos) con base al estatus
         /// </summary>
@@ -32,8 +36,7 @@ namespace Negocio
             FilterConstraints filterConstraint = new FilterConstraints();
 
             #region Filtros
-           
-            filterConstraint = null;
+
             filterConstraint = new Entidades.FilterConstraints();
             filterConstraint.filterSelection = Negocio.Globales.Constantes.FILTRO_CAMPO_ACCOUNT_ID;
             filterConstraint.filterElement = Negocio.Globales.Constantes.OPERADOR_EQUALS;
@@ -49,7 +52,7 @@ namespace Negocio
             string json = JsonConvert.SerializeObject(filtros);
 
             List<Loan> contratos = null;
-            List<Loan> acumuladoContratos = new List<Loan>();
+            List<Loan> acumuladoContratos = new List<Loan>();            
 
             while (!acaba)
             {
@@ -74,7 +77,8 @@ namespace Negocio
                 using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var objText = streamReader.ReadToEnd();
-                    contratos = js.Deserialize<List<Loan>>(objText);                    
+
+                    contratos = js.Deserialize<List<Loan>>(objText);                   
                     if (contratos.Count <= 0)
                     {
                         acaba = true;
@@ -631,16 +635,16 @@ namespace Negocio
             Filtros filtros = new Filtros();
             FilterConstraints filterConstraint = new FilterConstraints();
 
-            if (tipo != null)
-            {
-                // Tipo de Transacción
-                filterConstraint = new FilterConstraints();
-                filterConstraint.filterSelection = ConstantesMambu.FILTRO_SELECCION_EVENT;
-                filterConstraint.filterElement = ConstantesMambu.OPERADOR_EQUALS;
-                filterConstraint.value = tipo;
-                filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
-                filtros.filterConstraints.Add(filterConstraint);
-            }
+            //if (tipo != null)
+            //{
+            //    // Tipo de Transacción
+            //    filterConstraint = new FilterConstraints();
+            //    filterConstraint.filterSelection = ConstantesMambu.FILTRO_SELECCION_EVENT;
+            //    filterConstraint.filterElement = ConstantesMambu.OPERADOR_EQUALS;
+            //    //filterConstraint.value = tipo;
+            //    filterConstraint.dataItemType = ConstantesMambu.DATA_ITEM_TYPE_LOAN_TRANSACTION;
+            //    filtros.filterConstraints.Add(filterConstraint);
+            //}
 
 
 
