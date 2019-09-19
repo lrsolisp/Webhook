@@ -50,12 +50,12 @@ namespace MambuWebHook.Controllers
                 //Consulta para validar si el contrato ya existe.
                 //Ya que la petición del webhook ha estado enviando valores duplicados
                 string existe = OperacionesBD.ValidaExisteContrato(parametros);
-                log.Info("--------> Validacion existencia de contrato " + existe);
+                log.Info("--------> Validacion existencia de contrato "+ contratoWebHook.IdContrato  + existe);
 
                 //Una vez que se valide que el contrato que esta por crearse no existe
                 //se procede a obtener informacion de mambu para posteriormente agregar
                 //la informacion concentrada en la BD de VFMéxico
-                if (existe.Equals("1"))
+                if (existe.Equals("0"))
                 {
                     //Obtenemos las transacciones del contrato
                     List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contratoWebHook.IdContrato);
@@ -79,9 +79,9 @@ namespace MambuWebHook.Controllers
                             parametrosExisteCredito.Add("idCredito", contratoWebHook.IdCredito);
 
                             // se valida que ya exista el crédito 
-                            existe = string.Empty;
-                            existe = OperacionesBD.ExisteCredito(parametrosExisteCredito);
-                            log.Info("--------> Validacion existencia de credito " + existe);
+                            string existeCredito = string.Empty;
+                            existeCredito = OperacionesBD.ExisteCredito(parametrosExisteCredito);
+                            log.Info("--------> Validacion existencia de credito " + existeCredito);
 
 
                             //Creamos instancias de los objetos que se obtendra información
@@ -229,7 +229,7 @@ namespace MambuWebHook.Controllers
                             contratoInsertar.fechaCierre = Convert.ToDateTime(loan.closeDate.Year == 1 ? "01/01/1900" : loan.closeDate.ToString());
 
                             //Validamos que no exista el crédito
-                            if (existe.Equals("0"))
+                            if (existeCredito.Equals("0"))
                             {
                                 OperacionesBD.InsertarCredito(credito);
 
