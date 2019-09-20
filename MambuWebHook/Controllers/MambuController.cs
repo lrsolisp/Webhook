@@ -39,7 +39,6 @@ namespace MambuWebHook.Controllers
             ContratoWebHookMambu contratoWebHook = new ContratoWebHookMambu();
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
-            log.Info("---------> Se obtiene el JSON -----------");
             contratoWebHook = new JavaScriptSerializer().Deserialize<ContratoWebHookMambu>(rawSendGridJSON);
 
             if (contratoWebHook != null)
@@ -50,7 +49,10 @@ namespace MambuWebHook.Controllers
                 //Consulta para validar si el contrato ya existe.
                 //Ya que la petición del webhook ha estado enviando valores duplicados
                 string existe = OperacionesBD.ValidaExisteContrato(parametros);
-                log.Info("--------> Validacion existencia de contrato "+ contratoWebHook.IdContrato  + existe);
+                string existeCadena = (existe == "1" ? " existe" : " no existe");
+
+                log.Info("************* NUEVO CONTRATO ***************************");
+                log.Info("--------> Validacion existencia de contrato "+ contratoWebHook.IdContrato  +" " + existeCadena);
 
                 //Una vez que se valide que el contrato que esta por crearse no existe
                 //se procede a obtener informacion de mambu para posteriormente agregar
@@ -103,7 +105,7 @@ namespace MambuWebHook.Controllers
                             //Validar que el id de sucursal de contratowebhook sea el mismo
                             datos = Operaciones.ObtenerDatosSucursal(loan.assignedBranchKey);
 
-                            log.Info("Se obtuvieron los datos de la sucursal: " + credito.idSucursal);
+                            //log.Info("Se obtuvieron los datos de la sucursal: " + credito.idSucursal);
 
                             credito.idSucursal = datos.Where(z => z.Key.Equals("idSucursal")).FirstOrDefault().Value.ToString();
                             credito.nombreSucursal = datos.Where(z => z.Key.Equals("nombreSucursal")).FirstOrDefault().Value.ToString();
@@ -112,7 +114,7 @@ namespace MambuWebHook.Controllers
                             //Se obtiene el cliente y su informacion faltante
                             datosCliente = Operaciones.ObtenerDatosCliente(loan.accountHolderKey);
 
-                            log.Info("Se obtuvieron los datos del cliente: " + cliente.nombre + " " + cliente.apellidoPaterno);
+                            //log.Info("Se obtuvieron los datos del cliente: " + cliente.nombre + " " + cliente.apellidoPaterno);
 
                             try
                             {
@@ -234,6 +236,11 @@ namespace MambuWebHook.Controllers
                                 OperacionesBD.InsertarCredito(credito);
 
                                 log.Info("Se inserto el credito : " + credito.idCredito);
+                                log.Info("con fecha de contrato: " + credito.fechaContrato);
+                            }
+                            else
+                            {
+                                log.Info("---------------------- Crédito ya existe y no pudo se insertado");
                             }
 
                             foreach (Repayment amortizacion in amortizaciones)
@@ -273,6 +280,10 @@ namespace MambuWebHook.Controllers
                                 OperacionesBD.InsertarCliente(contratoWebHook.Cliente);
 
                                 log.Info("Se inserto el cliente: " + contratoWebHook.Cliente.nombre + " " + contratoWebHook.Cliente.nombre);
+                            }
+                            else
+                            {
+                                log.Info("---------------- El cliente ya existe, no puede volver a ser insertado");
                             }
 
                             OperacionesBD.InsertarContrato(contratoInsertar);
@@ -357,8 +368,22 @@ namespace MambuWebHook.Controllers
                             credito = null;
                             contratoWebHook = null;
                         }
+
+                        log.Info("************* CONTRATO NUEVO FIN ***************************");
                     }
+                    else
+                    {
+                        log.Info("No se tienen nuevos contratos");
+                    }                    
                 }
+                else
+                {
+                    log.Info("************* CONTRATO YA EXISTE ***************************");
+                }
+            }
+            else
+            {
+                log.Warn("---------> Contrato no encontrado");
             }
             return new HttpStatusCodeResult(200);
         }
