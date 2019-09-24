@@ -148,7 +148,9 @@
       numeroCelular,
       scoreCredito,
       cicloCliente,
-      tipoAsentamiento
+      tipoAsentamiento,
+      tipoDocumento,
+      vigenciaDocumento
       )
       VALUES
       (
@@ -177,7 +179,9 @@
       #numeroCelular#,
       #scoreCredito#,
       #cicloCliente#,
-      #tipoAsentamiento#
+      #tipoAsentamiento#,
+      #tipoDocumento#,
+      #vigenciaDocumento#
       )
 
       <selectKey property="idCliente" resultClass="long" type="post" >

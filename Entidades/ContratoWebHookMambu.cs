@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Entidades
 {
@@ -104,5 +105,9 @@ namespace Entidades
 
         [DataMember(Name = "nombreOficialCredito")]
         public string NombreOficialCredito { get; set; }
+
+        [XmlArray("identificationdocument")]
+        [XmlArrayItem("identificationdocument")]
+        public List<Identificationdocument> identificationdocument { get; set; }
     }
 }

@@ -31,14 +31,14 @@ namespace Entidades
         public string NombreLocalidad { get; set; }
 
         [DataMember(Name = "numeroNinosPatrocinados")]
-        public string NumeroNinosPatrocinados { get; set; }      
+        public string NumeroNinosPatrocinados { get; set; }
 
         [DataMember(Name = "estadoCivil")]
         public string EstadoCivil { get; set; }
 
         [DataMember(Name = "escolaridad")]
         public string Escolaridad { get; set; }
-        
+
         public string scoreCredito { get; set; }
 
         public string cicloCliente { get; set; }
@@ -72,6 +72,14 @@ namespace Entidades
         [XmlArray("customInformation")]
         [JsonProperty("customInformation")]
         public List<CustomInformation> customInformation { get; set; }
+
+        [XmlArray("idDocuments")]
+        [XmlArrayItem("idDocuments")]
+        public List<Identificationdocument> idDocuments { get; set; }
+
+        public string tipoDocumento { get; set; }
+
+        public DateTime vigenciaDocumento { get; set; }
 
     }
 }

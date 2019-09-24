@@ -57,7 +57,7 @@ namespace MambuWebHook.Controllers
                 //Una vez que se valide que el contrato que esta por crearse no existe
                 //se procede a obtener informacion de mambu para posteriormente agregar
                 //la informacion concentrada en la BD de VFMéxico
-                if (existe.Equals("0"))
+                if (existe.Equals("1"))
                 {
                     //Obtenemos las transacciones del contrato
                     List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contratoWebHook.IdContrato);
@@ -145,6 +145,10 @@ namespace MambuWebHook.Controllers
                             Cliente clienteCamposPersonalizados = new Cliente();
 
                             clienteCamposPersonalizados = Operaciones.ObtenerDatosClienteActualiza(loan.accountHolderKey);
+
+                            //Obtenemos los datos de la identificacion capturada
+                            contratoWebHook.Cliente.tipoDocumento = clienteCamposPersonalizados.idDocuments[0].issuingAuthority;
+                            contratoWebHook.Cliente.vigenciaDocumento = clienteCamposPersonalizados.idDocuments[0].validUntil;
 
                             var customFields = clienteCamposPersonalizados.customInformation.Where(x => x.customFieldID.Equals("Edad_Clientes") && Convert.ToInt32(x.value) < 19).ToList().Count.ToString();
 

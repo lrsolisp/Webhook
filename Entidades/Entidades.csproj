@@ -71,6 +71,7 @@
     <Compile Include="Fee.cs" />
     <Compile Include="FilterConstraints.cs" />
     <Compile Include="Filtros.cs" />
+    <Compile Include="Identificationdocument.cs" />
     <Compile Include="Loan.cs" />
     <Compile Include="Movimiento.cs" />
     <Compile Include="Pago.cs" />
