@@ -57,7 +57,7 @@ namespace MambuWebHook.Controllers
                 //Una vez que se valide que el contrato que esta por crearse no existe
                 //se procede a obtener informacion de mambu para posteriormente agregar
                 //la informacion concentrada en la BD de VFMéxico
-                if (existe.Equals("1"))
+                if (existe.Equals("0"))
                 {
                     //Obtenemos las transacciones del contrato
                     List<Loan> loans = Operaciones.ObtenerCuentasPrestamo(contratoWebHook.IdContrato);
