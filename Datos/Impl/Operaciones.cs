@@ -11,6 +11,7 @@ namespace Datos.Impl
     public class Operaciones
     {
         private ISqlMapper mapper;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public Operaciones()
         {
@@ -34,12 +35,19 @@ namespace Datos.Impl
         {
             long insertado = -1;
 
-            Object objeto = mapper.Insert("InsertarCredito", credito);
-
-            if(objeto != null)
+            try
             {
-                insertado = (long)objeto;
-                objeto = null;
+                Object objeto = mapper.Insert("InsertarCredito", credito);
+
+                if (objeto != null)
+                {
+                    insertado = (long)objeto;
+                    objeto = null;
+                }
+            }
+            catch(Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
             }
 
             return insertado;
@@ -49,12 +57,19 @@ namespace Datos.Impl
         {
             long insertado = -1;
 
-            Object objeto = mapper.Insert("InsertarCliente", cliente);
-
-            if (objeto != null)
+            try
             {
-                insertado = (long)objeto;
-                objeto = null;
+                Object objeto = mapper.Insert("InsertarCliente", cliente);
+
+                if (objeto != null)
+                {
+                    insertado = (long)objeto;
+                    objeto = null;
+                }
+            }
+            catch(Exception e)
+            {
+                log.Error("ERROR --------- "+ e.StackTrace);
             }
 
             return insertado;
@@ -64,12 +79,19 @@ namespace Datos.Impl
         {
             long insertado = -1;
 
-            Object objeto = mapper.Insert("InsertarContrato", contratoInsertar);
-
-            if (objeto != null)
+            try
             {
-                insertado = (long)objeto;
-                objeto = null;
+                Object objeto = mapper.Insert("InsertarContrato", contratoInsertar);
+
+                if (objeto != null)
+                {
+                    insertado = (long)objeto;
+                    objeto = null;
+                }
+            }
+            catch(Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
             }
 
             return insertado;
@@ -77,7 +99,14 @@ namespace Datos.Impl
 
         public void BorrarAmortizacionesContrato(string idContrato)
         {
-            Object objeto = mapper.Delete("EliminarAmortizacionesContrato", idContrato);
+            try
+            {
+                Object objeto = mapper.Delete("EliminarAmortizacionesContrato", idContrato);
+            }
+            catch(Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
+            }
         }
 
         public string ExisteTransaccion(long transactionId)
@@ -87,12 +116,26 @@ namespace Datos.Impl
 
         public void BorrarMovimientosContrato(string id)
         {
-            Object objeto = mapper.Delete("EliminarMovimientosContrato", id);
+            try
+            {
+                Object objeto = mapper.Delete("EliminarMovimientosContrato", id);
+            }
+            catch (Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
+            }            
         }
 
         public void ActualizarContrato(Dictionary<string, object> parametros)
-        {
-            mapper.Update("ActualizarContrato", parametros);
+        {            
+            try
+            {
+                mapper.Update("ActualizarContrato", parametros);
+            }
+            catch (Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
+            }
         }
 
         public string ExisteCliente(Dictionary<string, object> parametros)
@@ -102,27 +145,47 @@ namespace Datos.Impl
 
         public void BorrarCliente(string idCliente)
         {
-            Object objeto = mapper.Delete("EliminarCliente", idCliente);
+            try
+            {
+                Object objeto = mapper.Delete("EliminarCliente", idCliente);
+            }
+            catch(Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
+            }
         }
 
         public long InsertarMovimiento(Movimiento movimiento)
         {
             long insertado = -1;
-
-            Object objeto = mapper.Insert("InsertarMovimiento", movimiento);
-
-            if (objeto != null)
+            
+            try
             {
-                insertado = (long)objeto;
-                objeto = null;
-            }
+                Object objeto = mapper.Insert("InsertarMovimiento", movimiento);
 
+                if (objeto != null)
+                {
+                    insertado = (long)objeto;
+                    objeto = null;
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
+            }
             return insertado;
         }
 
         public void BorrarContrato(string idContrato)
         {
-            Object objeto = mapper.Delete("EliminarContrato", idContrato);
+            try
+            {
+                Object objeto = mapper.Delete("EliminarContrato", idContrato);
+            }
+            catch (Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
+            }
         }
 
         public string ObtenerCliente(string idContrato)
@@ -134,12 +197,19 @@ namespace Datos.Impl
         {
             long insertado = -1;
 
-            Object objeto = mapper.Insert("InsertarAmortizacion", pago);
-
-            if (objeto != null)
+            try
             {
-                insertado = (long)objeto;
-                objeto = null;
+                Object objeto = mapper.Insert("InsertarAmortizacion", pago);
+
+                if (objeto != null)
+                {
+                    insertado = (long)objeto;
+                    objeto = null;
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error("ERROR --------- " + e.StackTrace);
             }
 
             return insertado;

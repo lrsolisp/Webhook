@@ -66,29 +66,36 @@ namespace Negocio
                 JavaScriptSerializer js = new JavaScriptSerializer();
                 js.MaxJsonLength = Int32.MaxValue;
 
-                using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                try
                 {
-                    streamWriter.Write(json);
-                    streamWriter.Flush();
-                    streamWriter.Close();
+                    using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                    {
+                        streamWriter.Write(json);
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+
+                    var httpResponse = (HttpWebResponse)req.GetResponse();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        var objText = streamReader.ReadToEnd();
+
+                        contratos = js.Deserialize<List<Loan>>(objText);
+                        if (contratos.Count <= 0)
+                        {
+                            acaba = true;
+                        }
+                        else
+                        {
+                            offset += 1000;
+                            acumuladoContratos.AddRange(contratos);
+                        }
+                        contratos = null;
+                    }
                 }
-
-                var httpResponse = (HttpWebResponse)req.GetResponse();
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                catch(Exception e)
                 {
-                    var objText = streamReader.ReadToEnd();
-
-                    contratos = js.Deserialize<List<Loan>>(objText);                   
-                    if (contratos.Count <= 0)
-                    {
-                        acaba = true;
-                    }
-                    else
-                    {
-                        offset += 1000;
-                        acumuladoContratos.AddRange(contratos);
-                    }
-                    contratos = null;
+                    log.Error("ERROR ------------ " + e.StackTrace);
                 }
             }
             return acumuladoContratos;
@@ -110,19 +117,27 @@ namespace Negocio
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
-            var httpResponse = (HttpWebResponse)req.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            try
             {
-                var objText = streamReader.ReadToEnd();
-                sucursal = js.Deserialize<Entidades.Sucursal>(objText);
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    sucursal = js.Deserialize<Entidades.Sucursal>(objText);
+                }
+
+                if (sucursal != null)
+                {
+                    objeto.Add("idSucursal", sucursal.id);
+                    objeto.Add("nombreSucursal", sucursal.name);
+
+                    sucursal = null;
+                }
+
             }
-
-            if (sucursal != null)
+            catch(Exception e)
             {
-                objeto.Add("idSucursal", sucursal.id);
-                objeto.Add("nombreSucursal", sucursal.name);
-
-                sucursal = null;
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return objeto;
@@ -147,13 +162,19 @@ namespace Negocio
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
-            var httpResponse = (HttpWebResponse)req.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            try
             {
-                var objText = streamReader.ReadToEnd();
-                objeto = js.Deserialize<Entidades.Cliente>(objText);
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    objeto = js.Deserialize<Entidades.Cliente>(objText);
+                }
             }
-
+            catch(Exception e)
+            {
+                log.Error("ERROR ------------ " + e.StackTrace);
+            }
             return objeto;
         }
 
@@ -176,47 +197,54 @@ namespace Negocio
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
-            var httpResponse = (HttpWebResponse)req.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            try
             {
-                var objText = streamReader.ReadToEnd();
-                objeto = js.Deserialize<ClienteMambu>(objText);
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    objeto = js.Deserialize<ClienteMambu>(objText);
+                }
+
+                if (objeto != null)
+                {
+                    datos.Add("idCliente", objeto.client.id);
+                    datos.Add("nombreCliente", objeto.client.firstName);
+                    datos.Add("paternoCliente", objeto.client.middleName);
+                    datos.Add("maternoCliente", objeto.client.lastName);
+                    datos.Add("fechaNacimiento", objeto.client.birthDate);
+                    datos.Add("rfc", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_RFC_CLIENTE).value);
+                    datos.Add("curp", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CURP).value);
+                    datos.Add("sexo", objeto.client.gender);
+                    datos.Add("direccion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CALLE).value + " "
+                                            + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_EXTERIOR).value + " "
+                                            + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_INTERIOR).value);
+                    datos.Add("coloniaPoblacion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_COLONIA).value);
+
+                    if (objeto.client.homePhone == null)
+                    {
+                        datos.Add("numeroTelefonico", objeto.client.mobilePhone1);
+                    }
+                    else
+                    {
+                        datos.Add("numeroTelefonico", objeto.client.homePhone);
+                    }
+
+                    if (objeto.groupKeys.Count > 0)
+                    {
+                        datos.Add("keyGrupo", objeto.groupKeys.FirstOrDefault().ToString());
+                    }
+                    else
+                    {
+                        datos.Add("keyGrupo", objeto.id);
+                    }
+
+                    objeto = null;
+                }
             }
-
-            if (objeto != null)
+            catch(Exception e)
             {
-                datos.Add("idCliente", objeto.client.id);
-                datos.Add("nombreCliente", objeto.client.firstName);
-                datos.Add("paternoCliente", objeto.client.middleName);
-                datos.Add("maternoCliente", objeto.client.lastName);
-                datos.Add("fechaNacimiento", objeto.client.birthDate);
-                datos.Add("rfc", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_RFC_CLIENTE).value);
-                datos.Add("curp", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CURP).value);
-                datos.Add("sexo", objeto.client.gender);
-                datos.Add("direccion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CALLE).value + " "
-                                        + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_EXTERIOR).value + " "
-                                        + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_INTERIOR).value);
-                datos.Add("coloniaPoblacion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_COLONIA).value);
-                
-                if(objeto.client.homePhone == null)
-                {
-                    datos.Add("numeroTelefonico", objeto.client.mobilePhone1);
-                }                    
-                else
-                {
-                    datos.Add("numeroTelefonico", objeto.client.homePhone);
-                }
-                
-                if (objeto.groupKeys.Count > 0)
-                {
-                    datos.Add("keyGrupo", objeto.groupKeys.FirstOrDefault().ToString());
-                }
-                else
-                {
-                    datos.Add("keyGrupo", objeto.id);
-                }
-
-                objeto = null;
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return datos;
@@ -242,23 +270,30 @@ namespace Negocio
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
-            var httpResponse = (HttpWebResponse)req.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+
+            try
             {
-                var objText = streamReader.ReadToEnd();
-                clienteMambu = js.Deserialize<ClienteMambu>(objText);
-            }
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    clienteMambu = js.Deserialize<ClienteMambu>(objText);
+                }
 
-            if (clienteMambu != null)
+                if (clienteMambu != null)
+                {
+                    cliente.idCliente = clienteMambu.client.id;
+                    cliente.nombre = clienteMambu.client.firstName;
+                    cliente.apellidoPaterno = clienteMambu.client.lastName;
+                    cliente.apellidoMaterno = clienteMambu.client.middleName;
+
+                    var rfc = clienteMambu.customInformation.FirstOrDefault(i => i.customFieldID == ConstantesMambu.ID_CAMPO_RFC_CLIENTE).value;
+                }
+            }
+            catch(Exception e)
             {
-                cliente.idCliente = clienteMambu.client.id;
-                cliente.nombre = clienteMambu.client.firstName;
-                cliente.apellidoPaterno = clienteMambu.client.lastName;
-                cliente.apellidoMaterno = clienteMambu.client.middleName;
-
-                var rfc = clienteMambu.customInformation.FirstOrDefault(i => i.customFieldID == ConstantesMambu.ID_CAMPO_RFC_CLIENTE).value;
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
-
             return cliente;
 
         }
@@ -282,18 +317,25 @@ namespace Negocio
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
-            var httpResponse = (HttpWebResponse)req.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            try
             {
-                var objText = streamReader.ReadToEnd();
-                objeto = js.Deserialize<Grupo>(objText);
-            }
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    objeto = js.Deserialize<Grupo>(objText);
+                }
 
-            if (objeto != null)
+                if (objeto != null)
+                {
+                    datos.Add("idGrupo", objeto.id);
+                    datos.Add("nombreGrupo", objeto.groupName);
+                    objeto = null;
+                }
+            }
+            catch(Exception e)
             {
-                datos.Add("idGrupo", objeto.id);
-                datos.Add("nombreGrupo", objeto.groupName);
-                objeto = null;
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return datos;
@@ -316,17 +358,24 @@ namespace Negocio
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
-            var httpResponse = (HttpWebResponse)req.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            try
             {
-                var objText = streamReader.ReadToEnd();
-                objeto = js.Deserialize<Producto>(objText);
-            }
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    objeto = js.Deserialize<Producto>(objText);
+                }
 
-            if (objeto != null)
+                if (objeto != null)
+                {
+                    datos.Add("nombreProducto", objeto.productName);
+                    objeto = null;
+                }
+            }    
+            catch(Exception e)
             {
-                datos.Add("nombreProducto", objeto.productName);
-                objeto = null;
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return datos;
@@ -392,29 +441,36 @@ namespace Negocio
                 JavaScriptSerializer js = new JavaScriptSerializer();
                 js.MaxJsonLength = Int32.MaxValue;
 
-                using(var streamWriter = new StreamWriter(req.GetRequestStream()))
+                try
                 {
-                    streamWriter.Write(json);
-                    streamWriter.Flush();
-                    streamWriter.Close();
+                    using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                    {
+                        streamWriter.Write(json);
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+
+                    var httpResponse = (HttpWebResponse)req.GetResponse();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        var objText = streamReader.ReadToEnd();
+                        contratos = js.Deserialize<List<Loan>>(objText);
+
+                        if (contratos.Count <= 0)
+                        {
+                            acaba = true;
+                        }
+                        else
+                        {
+                            offset += 1000;
+                            acumuladoContratos.AddRange(contratos);
+                        }
+                        contratos = null;
+                    }
                 }
-
-                var httpResponse = (HttpWebResponse)req.GetResponse();
-                using(var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                catch(Exception e)
                 {
-                    var objText = streamReader.ReadToEnd();
-                    contratos = js.Deserialize<List<Loan>>(objText);
-
-                    if(contratos.Count <= 0)
-                    {
-                        acaba = true;
-                    }
-                    else
-                    {
-                        offset += 1000;
-                        acumuladoContratos.AddRange(contratos);
-                    }
-                    contratos = null;
+                    log.Error("ERROR ------------ " + e.StackTrace);
                 }
             }
             return acumuladoContratos;
@@ -452,21 +508,27 @@ namespace Negocio
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
-            using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+            try
             {
-                streamWriter.Write(json);
-                streamWriter.Flush();
-                streamWriter.Close();
+                using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                {
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+
+
+                var httpResponse = (HttpWebResponse)req.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var objText = streamReader.ReadToEnd();
+                    contrato = js.Deserialize<List<Loan>>(objText);
+                }
             }
-
-
-            var httpResponse = (HttpWebResponse)req.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            catch (Exception e)
             {
-                var objText = streamReader.ReadToEnd();
-                contrato = js.Deserialize<List<Loan>>(objText);
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
-
 
             return contrato[0];
         }
@@ -501,9 +563,9 @@ namespace Negocio
                     amortizaciones = JsonConvert.DeserializeObject<List<Entidades.Repayment>>(objText);
                 }
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return amortizaciones;
@@ -541,9 +603,9 @@ namespace Negocio
                     userMambu = JsonConvert.DeserializeObject<Usuario>(objText);
                 }
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return userMambu;
@@ -584,9 +646,9 @@ namespace Negocio
                     campoPersonalizado = JsonConvert.DeserializeObject<List<CustomFieldValue>>(objText);                    
                 }
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return campoPersonalizado;
@@ -617,9 +679,9 @@ namespace Negocio
                     transacciones = JsonConvert.DeserializeObject<List<Entidades.Transaccion>>(objText);
                 }
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-
+                log.Error("ERROR ------------ " + e.StackTrace);
             }
 
             return transacciones;
@@ -686,31 +748,38 @@ namespace Negocio
                 JavaScriptSerializer js = new JavaScriptSerializer();
                 js.MaxJsonLength = Int32.MaxValue;
 
-                using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                try
                 {
-                    streamWriter.Write(json);
-                    streamWriter.Flush();
-                    streamWriter.Close();
+                    using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+                    {
+                        streamWriter.Write(json);
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+
+
+                    var httpResponse = (HttpWebResponse)req.GetResponse();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        var objText = streamReader.ReadToEnd();
+                        transacciones = js.Deserialize<List<Transaccion>>(objText);
+
+                        if (transacciones.Count <= 0)
+                        {
+                            acaba = true;
+                        }
+                        else
+                        {
+                            offset += 1000;
+                            acumuladoTransacciones.AddRange(transacciones);
+                        }
+
+                        transacciones = null;
+                    }
                 }
-
-
-                var httpResponse = (HttpWebResponse)req.GetResponse();
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                catch(Exception e)
                 {
-                    var objText = streamReader.ReadToEnd();
-                    transacciones = js.Deserialize<List<Transaccion>>(objText);
-
-                    if (transacciones.Count <= 0)
-                    {
-                        acaba = true;
-                    }
-                    else
-                    {
-                        offset += 1000;
-                        acumuladoTransacciones.AddRange(transacciones);
-                    }
-
-                    transacciones = null;
+                    log.Error("ERROR ------------ " + e.StackTrace);
                 }
 
             }
@@ -783,26 +852,31 @@ namespace Negocio
                     streamWriter.Close();
                 }
 
-
-                var httpResponse = (HttpWebResponse)req.GetResponse();
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                try
                 {
-                    var objText = streamReader.ReadToEnd();
-                    transacciones = js.Deserialize<List<Transaccion>>(objText);
-
-                    if (transacciones.Count <= 0)
+                    var httpResponse = (HttpWebResponse)req.GetResponse();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                     {
-                        acaba = true;
-                    }
-                    else
-                    {
-                        offset += 1000;
-                        acumuladoTransacciones.AddRange(transacciones);
-                    }
+                        var objText = streamReader.ReadToEnd();
+                        transacciones = js.Deserialize<List<Transaccion>>(objText);
 
-                    transacciones = null;
+                        if (transacciones.Count <= 0)
+                        {
+                            acaba = true;
+                        }
+                        else
+                        {
+                            offset += 1000;
+                            acumuladoTransacciones.AddRange(transacciones);
+                        }
+
+                        transacciones = null;
+                    }
                 }
-
+                catch(Exception e)
+                {
+                    log.Error("ERROR ------------ " + e.StackTrace);
+                }
             }
 
             return acumuladoTransacciones;
