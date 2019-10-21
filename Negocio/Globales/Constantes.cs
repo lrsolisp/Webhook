@@ -106,5 +106,9 @@ namespace Negocio.Globales
 
         public const Decimal IVA = 16.0M;
 
+        public const string TIPO_CREDITO_GRUPAL = "GRUPAL";
+
+        public const string TIPO_CREDITO_INDIVIDUAL = "INDIVIDUAL";
+
     }
 }

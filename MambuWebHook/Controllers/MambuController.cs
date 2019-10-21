@@ -184,6 +184,17 @@ namespace MambuWebHook.Controllers
 
                             credito.estatus = loan.accountState;
 
+                            credito.idProducto = datos.Where(z => z.Key.Equals("idProducto")).FirstOrDefault().Value.ToString();
+
+                            if (loans.Count > 0)
+                            {
+                                credito.tipoCredito = Negocio.Globales.Constantes.TIPO_CREDITO_GRUPAL;
+                            }
+                            else
+                            {
+                                credito.tipoCredito = Negocio.Globales.Constantes.TIPO_CREDITO_INDIVIDUAL;
+                            }
+
                             //Obtener los datos de oficial de credito
                             List<CustomFieldValue> campo = Operaciones.ObtenerCampoPersonalizadoContrato(contratoWebHook.IdContrato, "Oficial_de_Credito_Asignado_Cuen", string.Empty);
 

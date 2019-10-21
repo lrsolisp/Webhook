@@ -43,5 +43,8 @@ namespace Entidades
             fechaEsperadaLiquidacion = DateTime.Now;
         }
 
+        public string tipoCredito { get; set; }
+
+        public string idProducto { get; set; }
     }
 }
