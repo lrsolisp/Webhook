@@ -14,13 +14,14 @@ namespace MambuWebHook.Controllers
 {
     public class MambuController : Controller
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         [BasicAuthentication]
         public ActionResult Create()
         {
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
-
+            log.Info(rawSendGridJSON);
             return new HttpStatusCodeResult(200);
         }
 
@@ -38,6 +39,7 @@ namespace MambuWebHook.Controllers
             System.IO.StreamReader reader = new System.IO.StreamReader(HttpContext.Request.InputStream);
             string rawSendGridJSON = reader.ReadToEnd();
             contratoWebHook = new JavaScriptSerializer().Deserialize<ContratoWebHookMambu>(rawSendGridJSON);
+
 
             if (contratoWebHook != null)
             {
@@ -59,23 +61,18 @@ namespace MambuWebHook.Controllers
 
                     long contador = 0;
 
+                    log.Info("Contrato Nuevo :" + contador.ToString() + " DE: " + loans.Count().ToString());
+                    
                     if (loans != null && loans.Count > 0)
                     {
                         Dictionary<string, string> datos = new Dictionary<string, string>();
 
                         foreach (var loan in loans)
                         {
-
-
                             int numeroPago = 1;
 
                             Dictionary<string, object> parametrosExisteCredito = new Dictionary<string, object>();
                             parametrosExisteCredito.Add("idCredito", contratoWebHook.IdCredito);
-
-                            // se valida que ya exista el crédito 
-                            string existeCredito = string.Empty;
-                            existeCredito = OperacionesBD.ExisteCredito(parametrosExisteCredito);
-
 
                             //Creamos instancias de los objetos que se obtendra información
                             Credito credito = new Credito();
@@ -103,22 +100,14 @@ namespace MambuWebHook.Controllers
 
                             try
                             {
-                                cliente.nombre = datosCliente.Where(z => z.Key.Equals("nombreCliente")).FirstOrDefault().Value.ToString();
-                                cliente.apellidoPaterno = datosCliente.Where(z => z.Key.Equals("paternoCliente")).FirstOrDefault().Value.ToString();
-                                cliente.apellidoMaterno = datosCliente.Where(z => z.Key.Equals("maternoCliente")).FirstOrDefault().Value.ToString();
-
-                                //Agregamos al contrato obtenido desde el WebHook los campos que hacen falta
-                                contratoWebHook.Cliente.nombre = cliente.nombre;
-                                contratoWebHook.Cliente.apellidoPaterno = cliente.apellidoPaterno;
-                                contratoWebHook.Cliente.apellidoMaterno = cliente.apellidoMaterno;
-                                contratoWebHook.Cliente.fechaNacimiento = Convert.ToDateTime(datosCliente.Where(z => z.Key.Equals("fechaNacimiento")).FirstOrDefault().Value.ToString());
-                                contratoWebHook.Cliente.RFC = datosCliente.Where(z => z.Key.Equals("rfc")).FirstOrDefault().Value.ToString();
-                                contratoWebHook.Cliente.CURP = datosCliente.Where(z => z.Key.Equals("curp")).FirstOrDefault().Value.ToString();
+                                contratoWebHook.Cliente.nombre = datosCliente.Where(z => z.Key.Equals("nombreCliente")).FirstOrDefault().Value.ToString();
+                                contratoWebHook.Cliente.apellidoPaterno = datosCliente.Where(z => z.Key.Equals("paternoCliente")).FirstOrDefault().Value.ToString();
+                                contratoWebHook.Cliente.apellidoMaterno = datosCliente.Where(z => z.Key.Equals("maternoCliente")).FirstOrDefault().Value.ToString();
+                                contratoWebHook.Cliente.fechaNacimiento = Convert.ToDateTime(datosCliente.Where(z => z.Key.Equals("fechaNacimiento")).FirstOrDefault().Value.ToString());                                
                                 contratoWebHook.Cliente.sexo = datosCliente.Where(z => z.Key.Equals("sexo")).FirstOrDefault().Value.ToString();
                                 contratoWebHook.Cliente.coloniaPoblacion = datosCliente.Where(z => z.Key.Equals("coloniaPoblacion")).FirstOrDefault().Value.ToString();
-                                contratoWebHook.Cliente.numeroTelefonico = datosCliente.Where(z => z.Key.Equals("numeroTelefonico")).FirstOrDefault().Value.ToString();
 
-                                credito.keyGrupo = datos.Where(z => z.Key.Equals("keyGrupo")).FirstOrDefault().Value.ToString();
+                                credito.keyGrupo = datosCliente.Where(z => z.Key.Equals("keyGrupo")).FirstOrDefault().Value.ToString();
                             }
                             catch
                             {
@@ -184,7 +173,8 @@ namespace MambuWebHook.Controllers
 
                             credito.estatus = loan.accountState;
 
-                            credito.idProducto = datos.Where(z => z.Key.Equals("idProducto")).FirstOrDefault().Value.ToString();
+                            Dictionary<string, string> datosProducto = Negocio.Operaciones.ObtenerDatosProducto(loan.productTypeKey);
+                            credito.idProducto = datosProducto.Where(z => z.Key.Equals("idProducto")).FirstOrDefault().Value.ToString();                            
 
                             if (loans.Count > 0)
                             {
@@ -226,17 +216,7 @@ namespace MambuWebHook.Controllers
                             contratoInsertar.formaDesembolso = contratoWebHook.FormaDesembolso;
                             contratoInsertar.nombreOficialCredito = contratoWebHook.NombreOficialCredito;
                             contratoInsertar.numeroOficialCredito = userMambu.id;
-                            contratoInsertar.fechaCierre = Convert.ToDateTime(loan.closeDate.Year == 1 ? "01/01/1900" : loan.closeDate.ToString());
-
-                            //Validamos que no exista el crédito
-                            if (existeCredito.Equals("0"))
-                            {
-                                OperacionesBD.InsertarCredito(credito);
-                            }
-                            else
-                            {
-
-                            }
+                            contratoInsertar.fechaCierre = Convert.ToDateTime(loan.closeDate.Year == 1 ? "01/01/1900" : loan.closeDate.ToString());                            
 
                             foreach (Repayment amortizacion in amortizaciones)
                             {
@@ -258,25 +238,7 @@ namespace MambuWebHook.Controllers
 
 
                                 numeroPago += 1;
-                            }
-
-
-                            //Validar que el cliente exista en la BD, en caso de que ya se encuentre no se inserta
-                            Dictionary<string, object> parametrosCliente = new Dictionary<string, object>();
-                            parametrosCliente.Add("idCliente", contratoWebHook.Cliente.idCliente);
-
-                            string existeCliente = OperacionesBD.ExisteCliente(parametrosCliente);
-
-                            if (existeCliente.Equals("0"))
-                            {
-                                OperacionesBD.InsertarCliente(contratoWebHook.Cliente);
-
-                            }
-                            else
-                            {
-                            }
-
-                            OperacionesBD.InsertarContrato(contratoInsertar);
+                            }                                                      
 
                             List<Transaccion> transacciones = Operaciones.ObtenerTransacciones(Constantes.TRANSACTIONS_TYPE_DISBURSMENT, loan.encodedKey).ToList();
 
@@ -285,6 +247,8 @@ namespace MambuWebHook.Controllers
                             foreach (Transaccion transaccion in transacciones)
                             {
                                 Movimiento movimiento = new Movimiento();
+
+                                string existeMovimiento = Negocio.OperacionesBD.ExisteTransaccion(transaccion.transactionId);
 
                                 movimiento.codigo = transaccion.type.Equals(Constantes.TRANSACTIONS_TYPE_REPAYMENT) ? Constantes.MOVIMIENTO_PAGO : Constantes.MOVIMIENTO_DESEMBOLSO;
                                 movimiento.fechaMovimiento = DateTime.Parse(transaccion.creationDate);
@@ -296,7 +260,10 @@ namespace MambuWebHook.Controllers
                                 movimiento.montoTotal = transaccion.amount;
                                 movimiento.saldo = transaccion.principalBalance;
 
-                                OperacionesBD.InsertarMovimiento(movimiento);
+                                if(existeMovimiento.Equals("0"))
+                                {
+                                    OperacionesBD.InsertarMovimiento(movimiento);
+                                }
                             }
 
                             List<AnidaFee> comitions = loan.disbursementDetails.fees;
@@ -337,6 +304,44 @@ namespace MambuWebHook.Controllers
                                     OperacionesBD.InsertarMovimiento(movimiento);
                                 }
                             }
+
+                            //Validamos que no exista el crédito
+                            string existeCredito = string.Empty;
+                            existeCredito = OperacionesBD.ExisteCredito(parametrosExisteCredito);
+
+                            if (existeCredito.Equals("0"))
+                            {
+                                OperacionesBD.InsertarCredito(credito);
+                            }
+                            else
+                            {
+
+                            }
+
+                            Dictionary<string, object> parametrosGrupo = new Dictionary<string, object>();
+                            parametrosGrupo.Add("idGrupo", credito.idGrupo);
+                            parametrosGrupo.Add("nombreGrupo", credito.nombreGrupo);
+                            //Validamos que el grupo no exista
+                            string existeGrupo = Negocio.OperacionesBD.ExisteGrupo(credito.idGrupo);
+
+                            if (existeGrupo.Equals("0"))
+                            {
+                                Negocio.OperacionesBD.InsertarGrupo(parametrosGrupo);
+                            }
+
+                            //Validar que el cliente exista en la BD, en caso de que ya se encuentre no se inserta
+                            Dictionary<string, object> parametrosCliente = new Dictionary<string, object>();
+                            parametrosCliente.Add("idCliente", contratoWebHook.Cliente.idCliente);
+                            string existeCliente = OperacionesBD.ExisteCliente(parametrosCliente);
+
+                            if (existeCliente.Equals("0"))
+                            {
+                                OperacionesBD.InsertarCliente(contratoWebHook.Cliente);
+
+                            }
+                            
+
+                            OperacionesBD.InsertarContrato(contratoInsertar);
 
                             transacciones.Clear();
                             transacciones = null;

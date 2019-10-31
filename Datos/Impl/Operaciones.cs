@@ -215,6 +215,26 @@ namespace Datos.Impl
             return insertado;
         }
 
+        public long InsertarGrupo(Dictionary<string, object> parametros)
+        {
+            long insertado = -1;
+
+            Object objeto = mapper.Insert("InsertarGrupo", parametros);
+
+            if (objeto != null)
+            {
+                insertado = (long)objeto;
+                objeto = null;
+            }
+
+            return insertado;
+        }
+
+        public string ExisteGrupo(string idGrupo)
+        {
+            return mapper.QueryForObject<System.String>("ExisteGrupo", idGrupo);
+        }
+
         public void Commit()
         {
             if (mapper != null)

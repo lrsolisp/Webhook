@@ -150,7 +150,8 @@
       cicloCliente,
       tipoAsentamiento,
       tipoDocumento,
-      vigenciaDocumento
+      vigenciaDocumento,
+      estatus
       )
       VALUES
       (
@@ -181,7 +182,8 @@
       #cicloCliente#,
       #tipoAsentamiento#,
       #tipoDocumento#,
-      #vigenciaDocumento#
+      #vigenciaDocumento#, 
+      #estatus#
       )
 
       <selectKey property="idCliente" resultClass="long" type="post" >
@@ -262,6 +264,19 @@
       VALUES
       (
       #value#
+      )
+    </insert>
+
+    <insert id="InsertarGrupo" parameterClass="System.Collections.IDictionary" resultClass="long">
+      INSERT INTO grupos
+      (
+      idGrupo,
+      nombreGrupo
+      )
+      VALUES
+      (
+      #idGrupo#,
+      #nombreGrupo#
       )
     </insert>
 

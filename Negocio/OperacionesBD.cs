@@ -193,5 +193,15 @@ namespace Negocio
                 operacionesBD.RollBack();
             }
         }
+
+        public static string ExisteGrupo(string idGrupo)
+        {
+            return operacionesBD.ExisteGrupo(idGrupo);
+        }
+
+        public static void InsertarGrupo(Dictionary<string, object> parametrosGrupo)
+        {
+            operacionesBD.InsertarGrupo(parametrosGrupo);
+        }
     }
 }

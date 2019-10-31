@@ -52,7 +52,7 @@ namespace Negocio
             string json = JsonConvert.SerializeObject(filtros);
 
             List<Loan> contratos = null;
-            List<Loan> acumuladoContratos = new List<Loan>();            
+            List<Loan> acumuladoContratos = new List<Loan>();
 
             while (!acaba)
             {
@@ -93,7 +93,7 @@ namespace Negocio
                         contratos = null;
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     log.Error("ERROR ------------ " + e.StackTrace);
                 }
@@ -135,7 +135,7 @@ namespace Negocio
                 }
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 log.Error("ERROR ------------ " + e.StackTrace);
             }
@@ -171,7 +171,7 @@ namespace Negocio
                     objeto = js.Deserialize<Entidades.Cliente>(objText);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 log.Error("ERROR ------------ " + e.StackTrace);
             }
@@ -183,6 +183,7 @@ namespace Negocio
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
             ClienteMambu objeto = new ClienteMambu();
+            Cliente cliente = new Cliente();
             Dictionary<string, string> datos = new Dictionary<string, string>();
 
 
@@ -208,27 +209,15 @@ namespace Negocio
 
                 if (objeto != null)
                 {
-                    datos.Add("idCliente", objeto.client.id);
                     datos.Add("nombreCliente", objeto.client.firstName);
                     datos.Add("paternoCliente", objeto.client.middleName);
                     datos.Add("maternoCliente", objeto.client.lastName);
-                    datos.Add("fechaNacimiento", objeto.client.birthDate);
-                    datos.Add("rfc", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_RFC_CLIENTE).value);
-                    datos.Add("curp", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CURP).value);
+                    datos.Add("fechaNacimiento", objeto.client.birthDate);                    
                     datos.Add("sexo", objeto.client.gender);
                     datos.Add("direccion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_CALLE).value + " "
                                             + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_EXTERIOR).value + " "
                                             + objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_NUMERO_INTERIOR).value);
-                    datos.Add("coloniaPoblacion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_COLONIA).value);
-
-                    if (objeto.client.homePhone == null)
-                    {
-                        datos.Add("numeroTelefonico", objeto.client.mobilePhone1);
-                    }
-                    else
-                    {
-                        datos.Add("numeroTelefonico", objeto.client.homePhone);
-                    }
+                    datos.Add("coloniaPoblacion", objeto.customInformation.FirstOrDefault(i => i.customFieldKey == ConstantesMambu.KEY_CAMPO_COLONIA).value);                    
 
                     if (objeto.groupKeys.Count > 0)
                     {
@@ -242,7 +231,7 @@ namespace Negocio
                     objeto = null;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 log.Error("ERROR ------------ " + e.StackTrace);
             }
@@ -290,7 +279,7 @@ namespace Negocio
                     var rfc = clienteMambu.customInformation.FirstOrDefault(i => i.customFieldID == ConstantesMambu.ID_CAMPO_RFC_CLIENTE).value;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 log.Error("ERROR ------------ " + e.StackTrace);
             }
@@ -307,7 +296,7 @@ namespace Negocio
             Dictionary<string, string> datos = new Dictionary<string, string>();
 
 
-            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] +"/"+ Negocio.Globales.Constantes.API_MAMBU_GROUP + "/" + id);
+            WebRequest req = WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + Negocio.Globales.Constantes.API_MAMBU_GROUP + "/" + id);
 
             req.ContentType = "application/json; charset=utf-8";
             req.Method = Negocio.Globales.Constantes.METODO_GET;
@@ -333,7 +322,7 @@ namespace Negocio
                     objeto = null;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 log.Error("ERROR ------------ " + e.StackTrace);
             }
@@ -370,10 +359,11 @@ namespace Negocio
                 if (objeto != null)
                 {
                     datos.Add("nombreProducto", objeto.productName);
+                    datos.Add("idProducto", objeto.id);
                     objeto = null;
                 }
-            }    
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 log.Error("ERROR ------------ " + e.StackTrace);
             }
@@ -429,7 +419,7 @@ namespace Negocio
             List<Loan> contratos = null;
             List<Loan> acumuladoContratos = new List<Loan>();
 
-            while(!acaba)
+            while (!acaba)
             {
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/loans/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
 
@@ -468,7 +458,7 @@ namespace Negocio
                         contratos = null;
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     log.Error("ERROR ------------ " + e.StackTrace);
                 }
@@ -589,7 +579,7 @@ namespace Negocio
             req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
 
             JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;  
+            js.MaxJsonLength = Int32.MaxValue;
 
             var httpResponse = (HttpWebResponse)req.GetResponse();
 
@@ -643,7 +633,7 @@ namespace Negocio
                 {
                     var objText = streamReader.ReadToEnd();
 
-                    campoPersonalizado = JsonConvert.DeserializeObject<List<CustomFieldValue>>(objText);                    
+                    campoPersonalizado = JsonConvert.DeserializeObject<List<CustomFieldValue>>(objText);
                 }
             }
             catch (Exception e)
@@ -658,7 +648,7 @@ namespace Negocio
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"]+ "/loans/" + idContrato + "/transactions/" + Constantes.LIMITE_CONSULTA);
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/loans/" + idContrato + "/transactions/" + Constantes.LIMITE_CONSULTA);
 
             req.Method = Constantes.METODO_GET;
             req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
@@ -738,7 +728,7 @@ namespace Negocio
 
             while (!acaba)
             {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/"+"loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + "loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
 
                 req.Method = Constantes.METODO_POST;
                 req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
@@ -777,7 +767,7 @@ namespace Negocio
                         transacciones = null;
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     log.Error("ERROR ------------ " + e.StackTrace);
                 }
@@ -835,7 +825,7 @@ namespace Negocio
 
             while (!acaba)
             {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/"+"loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(ConfigurationManager.AppSettings["ambiente"] + "/" + "loans/transactions/search?" + Constantes.LIMITE_CONSULTA + "&" + Constantes.OFFSET_CONSULTA + offset);
 
                 req.Method = Constantes.METODO_POST;
                 req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(ConfigurationManager.AppSettings["user"] + ":" + ConfigurationManager.AppSettings["psw"]));
@@ -873,7 +863,7 @@ namespace Negocio
                         transacciones = null;
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     log.Error("ERROR ------------ " + e.StackTrace);
                 }

@@ -69,6 +69,18 @@
       SELECT '0'
     </select>
 
+    <select id="ExisteGrupo" parameterClass="long" resultClass="System.String">
+      IF EXISTS
+      (
+      SELECT 1
+      FROM grupos
+      WHERE  idGrupo = #value#
+      )
+      SELECT '1'
+      ELSE
+      SELECT '0'
+    </select>
+
 
   </statements>
 

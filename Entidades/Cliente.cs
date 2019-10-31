@@ -77,9 +77,15 @@ namespace Entidades
         [XmlArrayItem("idDocuments")]
         public List<Identificationdocument> idDocuments { get; set; }
 
+        [XmlArray("groupKeys")]
+        [JsonProperty("groupKeys")]
+        public List<String> groupKeys { get; set; }
+
         public string tipoDocumento { get; set; }
 
         public DateTime vigenciaDocumento { get; set; }
+
+        public string estatus { get; set; }
 
     }
 }
