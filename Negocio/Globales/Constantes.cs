@@ -83,6 +83,7 @@ namespace Negocio.Globales
         public const String DATA_ITEM_TYPE_CLIENT = "CLIENT";
         public const String DATA_ITEM_TYPE_GROUP = "GROUP";
         public const String DATA_ITEM_TYPE_DISBURSEMENT_DETAILS = "DISBURSEMENT_DETAILS";
+        public const String ESTATUS_WRITE_OFF = "WRITE_OFF";
 
 
 

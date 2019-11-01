@@ -251,7 +251,14 @@ namespace MambuWebHook.Controllers
 
                                 string existeMovimiento = Negocio.OperacionesBD.ExisteTransaccion(transaccion.transactionId);
 
-                                movimiento.codigo = transaccion.type.Equals(Constantes.TRANSACTIONS_TYPE_REPAYMENT) ? Constantes.MOVIMIENTO_PAGO : Constantes.MOVIMIENTO_DESEMBOLSO;
+                                if (transaccion.type.Equals("REPAYMENT"))
+                                    movimiento.codigo = "PAGO";
+                                else if (transaccion.type.Equals("DISBURSMENT"))
+                                    movimiento.codigo = "DESEMBOLSO";
+                                else if (transaccion.type.Equals(Negocio.Globales.Constantes.ESTATUS_WRITE_OFF))
+                                    movimiento.codigo = "CASTIGO";
+                                else
+                                    movimiento.codigo = "";
                                 movimiento.fechaMovimiento = DateTime.Parse(transaccion.creationDate);
                                 movimiento.fechaValor = DateTime.Parse(transaccion.entryDate);
                                 movimiento.idContrato = loan.id;
@@ -528,7 +535,16 @@ namespace MambuWebHook.Controllers
                 {
                     Movimiento movimiento = new Movimiento();
 
-                    movimiento.codigo = transaccion.type.Equals(Constantes.TRANSACTIONS_TYPE_REPAYMENT) ? Constantes.MOVIMIENTO_PAGO : Constantes.MOVIMIENTO_DESEMBOLSO;
+                    string existeMovimiento = Negocio.OperacionesBD.ExisteTransaccion(transaccion.transactionId);
+
+                    if (transaccion.type.Equals("REPAYMENT"))
+                        movimiento.codigo = "PAGO";
+                    else if (transaccion.type.Equals("DISBURSMENT"))
+                        movimiento.codigo = "DESEMBOLSO";
+                    else if (transaccion.type.Equals(Negocio.Globales.Constantes.ESTATUS_WRITE_OFF))
+                        movimiento.codigo = "CASTIGO";
+                    else
+                        movimiento.codigo = "";
                     movimiento.fechaMovimiento = DateTime.Parse(transaccion.creationDate);
                     movimiento.fechaValor = DateTime.Parse(transaccion.entryDate);
                     movimiento.idContrato = contrato.id;
@@ -538,7 +554,10 @@ namespace MambuWebHook.Controllers
                     movimiento.montoTotal = transaccion.amount;
                     movimiento.saldo = transaccion.principalBalance;
 
-                    OperacionesBD.InsertarMovimiento(movimiento);
+                    if (existeMovimiento.Equals("0"))
+                    {
+                        OperacionesBD.InsertarMovimiento(movimiento);
+                    }
 
                     movimiento = null;
                 }
