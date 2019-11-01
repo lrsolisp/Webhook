@@ -159,7 +159,7 @@ namespace MambuWebHook.Controllers
                             // la última fecha de las amortizaciones es la Fecha Esperada de Liquidación
                             credito.fechaEsperadaLiquidacion = DateTime.Parse(amortizaciones.LastOrDefault().dueDate);
                             credito.fechaContrato = DateTime.Parse(loan.fechaDeCreacion);
-                            credito.fechaDesembolso = DateTime.ParseExact(loan.disbursementDetails.expectedDisbursementDate, "yyyy-MM-dd'T'HH:mm:ssK", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);//DateTime.Parse(loan.disbursementDetails.expectedDisbursementDate);
+                            credito.fechaDesembolso = DateTime.Parse(DateTimeOffset.Parse(loan.disbursementDetails.expectedDisbursementDate).ToString("yyyy-MM-dd"));
                             credito.fechaBaja = DateTime.Parse("01/01/1900");
                             credito.fechaLiquidacion = DateTime.Parse("01/01/1900");
 
